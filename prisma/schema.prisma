@@ -22,15 +22,17 @@ model User {
   // role     Roles
 }
 
-//when upgrading use redis for streams and upvotes
+//when upgrading use redis for streams and upvotes, add rate limiting so can add 10 songs per user
 
 model Stream {
-  id      String     @id @default(uuid())
-  type    StreamType
-  active  Boolean    @default(true)
-  userId  String
-  user    User       @relation(fields: [userId], references: [id])
-  upvotes upvote[]
+  id          String     @id @default(uuid())
+  type        StreamType
+  active      Boolean    @default(true)
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  upvotes     upvote[]
+  url         String
+  extractedId String
 }
 
 model upvote {

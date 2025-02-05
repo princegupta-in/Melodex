@@ -33,6 +33,8 @@ model Stream {
   upvotes     upvote[]
   url         String
   extractedId String
+  title       String     @default("")
+  thumbnail   String     @default("")
 }
 
 model upvote {

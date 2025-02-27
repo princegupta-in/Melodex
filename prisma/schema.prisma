@@ -14,12 +14,14 @@ datasource db {
 }
 
 model User {
-  id       String    @id @default(uuid())
-  email    String    @unique
-  provider Providers
-  streams  Stream[]
-  upvotes  upvote[]
+  id              String            @id @default(uuid())
+  email           String            @unique
+  provider        Providers
+  streams         Stream[]
+  upvotes         Upvote[]
   // role     Roles
+  Room            Room[]
+  RoomParticipant RoomParticipant[]
 }
 
 //when upgrading use redis for streams and upvotes, add rate limiting so can add 10 songs per user
@@ -30,14 +32,17 @@ model Stream {
   active      Boolean    @default(true)
   userId      String
   user        User       @relation(fields: [userId], references: [id])
-  upvotes     upvote[]
+  upvotes     Upvote[]
   url         String
   extractedId String
   title       String     @default("")
   thumbnail   String     @default("")
+  roomId      String
+  room        Room       @relation(fields: [roomId], references: [id])
+  createdAt   DateTime   @default(now())
 }
 
-model upvote {
+model Upvote {
   id       String @id @default(uuid())
   userId   String
   streamId String
@@ -54,6 +59,32 @@ enum Providers {
 enum StreamType {
   Spotify
   Youtube
+}
+
+model Room {
+  id           String            @id @default(uuid())
+  name         String? // Optional room name
+  creatorId    String
+  creator      User              @relation(fields: [creatorId], references: [id])
+  streams      Stream[]
+  createdAt    DateTime          @default(now())
+  participants RoomParticipant[]
+}
+
+model RoomParticipant {
+  id     String          @id @default(uuid())
+  roomId String
+  userId String
+  role   ParticipantRole
+  room   Room            @relation(fields: [roomId], references: [id])
+  user   User            @relation(fields: [userId], references: [id])
+
+  @@unique([roomId, userId])
+}
+
+enum ParticipantRole {
+  CREATOR
+  SUBCREATOR
 }
 
 // enum Roles {

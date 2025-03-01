@@ -41,15 +41,15 @@ model Stream {
 model Upvote {
   id            String           @id @default(uuid())
   value         Int
-  userId        String? // now optional for guests
+  userId        String? // optional for guests
   participantId String? // for guest votes
   streamId      String
   user          User?            @relation(fields: [userId], references: [id])
   stream        Stream           @relation(fields: [streamId], references: [id])
   participant   RoomParticipant? @relation(fields: [participantId], references: [id])
 
-  @@unique([userId, streamId])
-  @@unique([participantId, streamId])
+  @@unique([userId, streamId], name: "userId_streamId")
+  @@unique([participantId, streamId], name: "participantId_streamId")
 }
 
 enum Providers {

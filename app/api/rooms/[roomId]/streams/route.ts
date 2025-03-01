@@ -21,7 +21,6 @@ const validRequestSchema = z.object({
 
 //if the user is creater of the room, i.e. the user is authenticated
 //get the user id from the session
-const session = await getServerSession(authOptions);
 
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
 
@@ -60,6 +59,8 @@ async function fetchYouTubeDetails(videoId: string) {
 
 // API Route
 export async function POST(req: NextRequest, { params }: { params: { roomId: string } }) {
+    const session = await getServerSession(authOptions);
+
     try {
         const e = validRequestSchema.safeParse(await req.json());
         if (!e.success) {

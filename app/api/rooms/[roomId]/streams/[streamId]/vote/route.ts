@@ -15,6 +15,7 @@ export async function POST(
 ) {
     // Attempt to get session for authenticated users.
     const session = await getServerSession(authOptions);
+    const { roomId, streamId } = await params
 
     let identifierField: 'userId' | 'participantId';
     let identifierValue: string;
@@ -35,39 +36,47 @@ export async function POST(
     }
 
     // Check if an upvote already exists for this identifier and stream.
-    let existingVote;
-    if (identifierField === 'userId') {
-        existingVote = await prisma.upvote.findUnique({
-            where: {
-                userId_streamId: {
-                    userId: identifierValue,
-                    streamId: params.streamId,
+    try {
+        let existingVote;
+        if (identifierField === 'userId') {
+            existingVote = await prisma.upvote.findUnique({
+                where: {
+                    userId_streamId: {
+                        userId: identifierValue,
+                        streamId: streamId,
+                    },
                 },
-            },
-        });
-    } else {
-        existingVote = await prisma.upvote.findUnique({
-            where: {
-                participantId_streamId: {
-                    participantId: identifierValue,
-                    streamId: params.streamId,
+            });
+        } else {
+            existingVote = await prisma.upvote.findUnique({
+                where: {
+                    participantId_streamId: {
+                        participantId: identifierValue!,
+                        streamId: streamId,
+                    },
                 },
-            },
-        });
-    }
+            });
+        }
 
-    if (existingVote) {
-        // Vote exists: remove it (toggle off)
-        await prisma.upvote.delete({ where: { id: existingVote.id } });
-        return NextResponse.json({ message: 'Upvote removed' }, { status: 200 });
-    } else {
-        // No vote exists: create one (toggle on)
-        const voteData: any = {
-            streamId: params.streamId,
-            value: 1,
-        };
-        voteData[identifierField] = identifierValue;
-        const newVote = await prisma.upvote.create({ data: voteData });
-        return NextResponse.json({ newVote, message: "Upvote added" }, { status: 200 });
+        if (existingVote) {
+            // Vote exists: remove it (toggle off)
+            await prisma.upvote.delete({ where: { id: existingVote.id } });
+            return NextResponse.json({ message: 'Upvote removed' }, { status: 200 });
+        } else {
+            // No vote exists: create one (toggle on)
+            const voteData: any = {
+                streamId: streamId,
+                value: 1,
+            };
+            voteData[identifierField] = identifierValue;
+            const newVote = await prisma.upvote.create({ data: voteData });
+            return NextResponse.json({ newVote, message: "Upvote added" }, { status: 200 });
+        }
+    } catch (error) {
+        //@ts-ignore
+        console.error(error.stack);
+        //@ts-ignore
+        return NextResponse.json({ error: error.message }, { status: 500 });
+
     }
 }

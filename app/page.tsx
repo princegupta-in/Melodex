@@ -1,9 +1,14 @@
-import AppBar from "@/components/AppBar";
+import Features from "@/components/Features";
+import HeroLanding from "@/components/HeroLanding";
+import { Navbar } from "@/components/Navbar";
+import Redirect from "@/components/Redirect";
 
 export default function Home() {
   return (
     <main>
-      <AppBar />
+      <Redirect/>
+      <HeroLanding />
+      <Features/>
     </main>
   );
 }

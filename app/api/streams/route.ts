@@ -79,13 +79,15 @@ export async function POST(req: NextRequest) {
                 type: "Youtube",
                 title,
                 thumbnail,
+                roomId: "xxxx",
             }
         });
         return NextResponse.json({ message: "Music added successfully", title, thumbnail, }, { status: 200 });
 
 
     } catch (error) {
-        console.error("❌", error);
+        //@ts-ignore
+        console.error("❌", error.stack);
         return NextResponse.json({ message: "An error occurred" }, { status: 500 });
 
     }

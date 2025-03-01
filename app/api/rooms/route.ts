@@ -34,6 +34,15 @@ export async function POST(request: Request) {
         creatorId: session.user.id,
       },
     });
+    //add this creator of room as a participant
+    await prisma.roomParticipant.create({
+      data: {
+        name: session.user.name!,
+        roomId: room.id,
+        userId: session.user.id,
+        role: "CREATOR"
+      },
+    });
     return NextResponse.json({ room, message: "room created" }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.errors || error.message }, { status: 400 });

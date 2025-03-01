@@ -27,8 +27,8 @@ model Stream {
   id          String     @id @default(uuid())
   type        StreamType
   active      Boolean    @default(true)
-  userId      String
-  user        User       @relation(fields: [userId], references: [id])
+  userId      String?
+  user        User?      @relation(fields: [userId], references: [id])
   upvotes     Upvote[]
   url         String
   extractedId String

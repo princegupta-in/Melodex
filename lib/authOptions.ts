@@ -24,7 +24,8 @@ export const authOptions: NextAuthOptions = {
         },
 
         async signIn({ user }) {
-            const { email, name, image } = user;
+            const { email, name, image,id } = user;
+            // console.log("🌸🌸",user)
 
             if (!email) return false; // Ensure email is present
 
@@ -36,6 +37,7 @@ export const authOptions: NextAuthOptions = {
                 await prisma.user.create({
                     data: {
                         email,
+                        id,
                         provider: "Google",
                     },
                 });

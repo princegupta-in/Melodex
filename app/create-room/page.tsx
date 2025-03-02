@@ -1,8 +1,4 @@
 "use client"
-
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import MusicPlayer from "@/components/music-player"
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';

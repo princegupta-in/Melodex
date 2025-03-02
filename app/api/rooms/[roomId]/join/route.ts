@@ -9,10 +9,9 @@ const joinSchema = z.object({
     name: z.string().min(1, 'Name is required'),
 });
 
-export async function POST(
-    request: Request,
-    { params }: { params: { roomId: string } }
-) {
+export async function POST(request: Request, { params }: { params: { roomId: string } }) {
+
+    const { roomId } = await params;
     try {
         const body = await request.json();
         const { name } = joinSchema.parse(body);
@@ -21,7 +20,7 @@ export async function POST(
         const participant = await prisma.roomParticipant.create({
             data: {
                 name,
-                roomId: params.roomId,
+                roomId: roomId,
             },
         });
         return NextResponse.json({ message: `welcome ${name}!!`, participant }, { status: 200 });

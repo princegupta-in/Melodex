@@ -118,8 +118,9 @@ export async function POST(req: NextRequest, { params }: { params: { roomId: str
 
 export async function GET(request: Request, { params }: { params: { roomId: string } }) {
     try {
+        const { roomId } = await params;
         const streams = await prisma.stream.findMany({
-            where: { roomId: params.roomId },
+            where: { roomId: roomId },
             orderBy: {
                 upvotes: {
                     _count: 'desc', // streams with the most upvotes come first

@@ -101,17 +101,36 @@ export async function POST(req: NextRequest, { params }: { params: { roomId: str
 }
 
 //get all streams
-export async function GET(req: NextRequest) {
-    const creatorId = req.nextUrl.searchParams.get('creatorId')
+// export async function GET(req: NextRequest) {
+//     const creatorId = req.nextUrl.searchParams.get('creatorId')
+//     try {
+//         const streams = await prisma.stream.findMany({
+//             where: {
+//                 userId: creatorId ?? "",
+//             },
+//         });
+//         return NextResponse.json({ streams }, { status: 200 });
+//     } catch (error) {
+//         console.error("❌", error);
+//         return NextResponse.json({ message: "An error occurred" }, { status: 500 });
+//     }
+// }
+
+export async function GET(request: Request, { params }: { params: { roomId: string } }) {
     try {
         const streams = await prisma.stream.findMany({
-            where: {
-                userId: creatorId ?? "",
+            where: { roomId: params.roomId },
+            orderBy: {
+                upvotes: {
+                    _count: 'desc', // streams with the most upvotes come first
+                },
+            },
+            include: {
+                upvotes: true, // optional: include upvotes if want to display vote details
             },
         });
         return NextResponse.json({ streams }, { status: 200 });
-    } catch (error) {
-        console.error("❌", error);
-        return NextResponse.json({ message: "An error occurred" }, { status: 500 });
+    } catch (error: any) {
+        return NextResponse.json({ error: error.message, message: "An error occurred" }, { status: 500 });
     }
 }

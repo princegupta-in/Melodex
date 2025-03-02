@@ -33,6 +33,7 @@ export async function POST(
         }
         identifierField = 'participantId';
         identifierValue = e.data.participantId;
+        // console.log("👋👋",identifierValue)
     }
 
     // Check if an upvote already exists for this identifier and stream.

@@ -1,11 +1,6 @@
-import React from 'react'
+import MusicRoomPage from "../../../components/MusicRoomPage";
 
-const page = () => {
-  return (
-    <div className='flex justify-center items-center h-screen'>
-      hello
-    </div>
-  )
+export default function Room() {
+    return <MusicRoomPage />
 }
 
-export default page

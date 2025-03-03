@@ -3,6 +3,11 @@
 import { useState, useEffect } from "react"
 import axios from "axios"
 import { ThumbsUp } from "lucide-react"
+import { useParams } from 'next/navigation';
+import YouTube from 'react-youtube';
+import { m } from "framer-motion";
+
+
 
 // Types
 interface Song {
@@ -21,7 +26,16 @@ interface Participant {
 
 export default function MusicRoomPage() {
     // Room ID would typically come from URL params or props
-    const roomId = "example-room-123"
+    const params = useParams();
+    const { roomId } = params;
+
+    //get all the streams of that particular room
+    // useEffect(()=>{
+    //     axios.get(`/api/rooms/${roomId}/streams`)
+    //     .then((streams)=>{
+    //         console.log(res.data)
+    //     })
+    // },[])    // const roomId = "example-room-123"
 
     // State
     const [currentSong, setCurrentSong] = useState<Song | null>(null)
@@ -37,17 +51,19 @@ export default function MusicRoomPage() {
     // Fetch songs and participants on component mount
     useEffect(() => {
         fetchSongs()
-        fetchParticipants()
+        // fetchParticipants()
     }, [])
 
     // Fetch songs from API
+    // console.log()
     const fetchSongs = async () => {
-        setLoading((prev) => ({ ...prev, songs: true }))
+        setLoading((prev) => ({ ...prev, songs: true })) //keep all of prev and mark song loading true
         setError(null)
 
         try {
-            const response = await axios.get(`/api/rooms/${roomId}/songs`)
-            const songs = response.data.songs || []
+            const response = await axios.get(`/api/rooms/${roomId}/streams`)
+            const songs = response.data.streams || []
+            // console.log("❌❌❌❌❌❌❌",songs)
 
             if (songs.length > 0) {
                 // Set the first song as current song if none is playing
@@ -61,39 +77,39 @@ export default function MusicRoomPage() {
         } catch (err) {
             setError("Failed to load songs. Please try again later.")
             // Use placeholder data for demo purposes
-            const placeholderSongs: Song[] = [
-                {
-                    id: "1",
-                    title: "Rick Astley - Never Gonna Give You Up",
-                    thumbnailUrl: "/placeholder.svg?height=90&width=120",
-                    youtubeId: "dQw4w9WgXcQ",
-                    upvotes: 15,
-                },
-                {
-                    id: "2",
-                    title: "Toto - Africa",
-                    thumbnailUrl: "/placeholder.svg?height=90&width=120",
-                    youtubeId: "FTQbiNvZqaY",
-                    upvotes: 12,
-                },
-                {
-                    id: "3",
-                    title: "Queen - Bohemian Rhapsody",
-                    thumbnailUrl: "/placeholder.svg?height=90&width=120",
-                    youtubeId: "fJ9rUzIMcZQ",
-                    upvotes: 10,
-                },
-                {
-                    id: "4",
-                    title: "Daft Punk - Get Lucky",
-                    thumbnailUrl: "/placeholder.svg?height=90&width=120",
-                    youtubeId: "5NV6Rdv1a3I",
-                    upvotes: 8,
-                },
-            ]
+            // const placeholderSongs: Song[] = [
+            //     {
+            //         id: "1",
+            //         title: "Rick Astley - Never Gonna Give You Up",
+            //         thumbnailUrl: "/placeholder.svg?height=90&width=120",
+            //         youtubeId: "dQw4w9WgXcQ",
+            //         upvotes: 15,
+            //     },
+            //     {
+            //         id: "2",
+            //         title: "Toto - Africa",
+            //         thumbnailUrl: "/placeholder.svg?height=90&width=120",
+            //         youtubeId: "FTQbiNvZqaY",
+            //         upvotes: 12,
+            //     },
+            //     {
+            //         id: "3",
+            //         title: "Queen - Bohemian Rhapsody",
+            //         thumbnailUrl: "/placeholder.svg?height=90&width=120",
+            //         youtubeId: "fJ9rUzIMcZQ",
+            //         upvotes: 10,
+            //     },
+            //     {
+            //         id: "4",
+            //         title: "Daft Punk - Get Lucky",
+            //         thumbnailUrl: "/placeholder.svg?height=90&width=120",
+            //         youtubeId: "5NV6Rdv1a3I",
+            //         upvotes: 8,
+            //     },
+            // ]
 
-            setCurrentSong(placeholderSongs[0])
-            setSongQueue(placeholderSongs.slice(1))
+            // setCurrentSong(placeholderSongs[0])
+            // setSongQueue(placeholderSongs.slice(1))
         } finally {
             setLoading((prev) => ({ ...prev, songs: false }))
         }
@@ -165,20 +181,34 @@ export default function MusicRoomPage() {
     }
 
     return (
-        <div className="flex h-screen bg-background">
+        <div className="flex h-screen bg-background pt-20">
             {/* Left Column - Player and Queue */}
-            <div className="w-1/2 flex flex-col p-4 border-r border-border">
+            <div className="w-1/2 flex flex-col p-4 border-r border-gray-200 bg-orange-400">
                 {/* YouTube Player */}
-                <div className="w-full aspect-video bg-muted mb-4 rounded-md overflow-hidden">
+                <div className="w-full h-1/3 bg-red-600 mb-4 rounded-md overflow-hidden flex items-center">
                     {currentSong && (
-                        <iframe
-                            src={`https://www.youtube.com/embed/${currentSong.youtubeId}?autoplay=1`}
-                            title="YouTube video player"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className="w-full h-full"
-                        ></iframe>
+                        <YouTube
+                            videoId={currentSong.extractedId}
+                            opts={{
+                                height: "100%",
+                                width: '100%',
+                                playerVars: {
+                                    autoplay: 1,
+                                    controls: 0,
+                                    modestbranding: 1,          //remove the YouTube logo
+                                    rel: 0,                     //disable related videos at the end
+                                    fs: 1,
+                                    iv_load_policy: 3,
+                                    // loop:0,
+                                    // playlist: currentSong.extractedId,
+                                },
+                            }}
+                        />
                     )}
+                    <div className="pl-2 flex flex-col h-full pt-4">
+                        <h2 className="text-xl font-bold mb-4">Now Playing</h2>
+                        <p className="text-muted-foreground">{currentSong?.title || "No song playing"}</p>
+                    </div>
                 </div>
 
                 {/* Song Queue */}
@@ -192,9 +222,9 @@ export default function MusicRoomPage() {
                     ) : (
                         <ul className="space-y-3">
                             {songQueue.map((song) => (
-                                <li key={song.id} className="flex items-center p-3 bg-card rounded-md shadow-sm">
+                                <li key={song.id} className="flex items-center p-3 bg-white rounded-md shadow-sm">
                                     <img
-                                        src={song.thumbnailUrl || "/placeholder.svg"}
+                                        src={song.thumbnail || "/placeholder.svg"}
                                         alt={song.title}
                                         className="w-20 h-14 object-cover rounded mr-3"
                                     />
@@ -204,7 +234,7 @@ export default function MusicRoomPage() {
                                     <div className="flex items-center ml-4">
                                         <button
                                             onClick={() => handleUpvote(song.id)}
-                                            className="flex items-center gap-1 px-2 py-1 bg-primary/10 hover:bg-primary/20 rounded-md transition-colors"
+                                            className="flex items-center gap-1 px-2 py-1 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
                                         >
                                             <ThumbsUp className="w-4 h-4" />
                                             <span>{song.upvotes}</span>
@@ -214,12 +244,13 @@ export default function MusicRoomPage() {
                             ))}
 
                             {songQueue.length === 0 && !loading.songs && (
-                                <p className="text-muted-foreground">No songs in queue. Add one!</p>
+                                <p className="text-gray-500">No songs in queue. Add one!</p>
                             )}
                         </ul>
                     )}
                 </div>
             </div>
+
 
             {/* Right Column - Add Song and Participants */}
             <div className="w-1/2 flex flex-col p-4">

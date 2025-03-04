@@ -36,6 +36,7 @@ model Stream {
   thumbnail   String     @default("")
   roomId      String
   room        Room       @relation(fields: [roomId], references: [id])
+  duration    Int? //video length in seconds
 }
 
 model Upvote {

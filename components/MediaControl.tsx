@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     FastForward,
     Pause,
@@ -16,16 +16,38 @@ import { Slider } from "@/components/ui/slider";
 
 interface MediaControlProps {
     player: any; // YouTube player instance from react-youtube
+    videoDuration: number; // Video duration in seconds, from your stream record
+
 }
 
-export default function MediaControl({ player }: MediaControlProps) {
+export default function MediaControl({ player, videoDuration }: MediaControlProps) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
-    const [duration, setDuration] = useState(100);
     const [volume, setVolume] = useState(75);
     const [showVolumeSlider, setShowVolumeSlider] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     const previousVolume = useRef(volume);
+
+    // Update currentTime every second if player exists and video is playing
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (player && isPlaying) {
+            interval = setInterval(() => {
+                const time = player.getCurrentTime();
+                setCurrentTime(time);
+            }, 1000);
+        }
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [player, isPlaying]);
+
+    // Format seconds to MM:SS
+    const formatTime = (seconds: number) => {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+        return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+    };
 
     // Toggle play/pause using the passed player instance
     const togglePlayPause = () => {
@@ -36,6 +58,15 @@ export default function MediaControl({ player }: MediaControlProps) {
             player.playVideo();
         }
         setIsPlaying(!isPlaying);
+    };
+
+    // When user seeks, update currentTime and call player.seekTo
+    const handleSeekChange = (value: number[]) => {
+        const newTime = value[0];
+        setCurrentTime(newTime);
+        if (player) {
+            player.seekTo(newTime, true);
+        }
     };
 
     // Handle volume change: update state and set player's volume
@@ -73,13 +104,6 @@ export default function MediaControl({ player }: MediaControlProps) {
         return <Volume2 className="h-5 w-5" />;
     };
 
-    // Format time (seconds) to MM:SS
-    const formatTime = (seconds: number) => {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = Math.floor(seconds % 60);
-        return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-    };
-
     return (
         <div className="w-full max-w-3xl mx-auto p-4 bg-background rounded-lg shadow-sm border">
             <div className="space-y-4 relative">
@@ -88,14 +112,14 @@ export default function MediaControl({ player }: MediaControlProps) {
                     <Slider
                         value={[currentTime]}
                         min={0}
-                        max={duration}
+                        max={videoDuration} //use videoDuration from props
                         step={1}
-                        onValueChange={(value) => setCurrentTime(value[0])}
+                        onValueChange={handleSeekChange}
                         className="cursor-pointer"
                     />
                     <div className="flex justify-between text-xs text-muted-foreground">
                         <span>{formatTime(currentTime)}</span>
-                        <span>{formatTime(duration)}</span>
+                        <span>{formatTime(videoDuration)}</span>
                     </div>
                 </div>
 

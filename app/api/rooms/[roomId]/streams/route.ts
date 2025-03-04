@@ -42,7 +42,7 @@ function extractYouTubeId(url: string): string | null {
 
 // Function to fetch video details from YouTube API
 async function fetchYouTubeDetails(videoId: string) {
-    const apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${YOUTUBE_API_KEY}`;
+    const apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${videoId}&key=${YOUTUBE_API_KEY}`;
     const response = await fetch(apiUrl);
     const data = await response.json();
 
@@ -51,11 +51,26 @@ async function fetchYouTubeDetails(videoId: string) {
     }
 
     const video = data.items[0].snippet;
+    const videoContentDetails = data.items[0].contentDetails;
+    const durationInSeconds = parseISO8601Duration(videoContentDetails.duration);
+
     return {
         title: video.title,
         thumbnail: video.thumbnails.high.url,
+        duration: durationInSeconds
     };
 }
+
+//Function to convert the duration string into seconds(Convert the ISO 8601 Duration to Seconds)
+function parseISO8601Duration(duration: string): number {
+    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    if (!match) return 0;
+    const hours = parseInt(match[1] || "0", 10);
+    const minutes = parseInt(match[2] || "0", 10);
+    const seconds = parseInt(match[3] || "0", 10);
+    return hours * 3600 + minutes * 60 + seconds;
+}
+
 
 // API Route
 export async function POST(req: NextRequest, { params }: { params: { roomId: string } }) {
@@ -76,7 +91,8 @@ export async function POST(req: NextRequest, { params }: { params: { roomId: str
         }
 
         // Fetch video details from YouTube API
-        const { title, thumbnail } = await fetchYouTubeDetails(videoId);
+        const { title, thumbnail, duration } = await fetchYouTubeDetails(videoId);
+        // console.log("Video details⚡⚡:", title, thumbnail, duration);
 
         //create stream
         await prisma.stream.create({
@@ -87,7 +103,8 @@ export async function POST(req: NextRequest, { params }: { params: { roomId: str
                 type: "Youtube",
                 title,
                 thumbnail,
-                roomId: roomId,
+                roomId,
+                duration,
             }
         });
         return NextResponse.json({ message: "Music added successfully", title, thumbnail, }, { status: 200 });

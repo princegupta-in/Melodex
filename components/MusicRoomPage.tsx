@@ -7,6 +7,8 @@ import { useParams } from 'next/navigation';
 import YouTube from 'react-youtube';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import MediaControl from "./MediaControl";
+import { on } from "events";
 
 
 
@@ -172,135 +174,144 @@ export default function MusicRoomPage() {
     }
 
     return (
-        <div className="flex h-screen bg-background pt-20">
-            {/* Left Column - Player and Queue */}
-            <div className="w-1/2 flex flex-col p-4 border-r border-gray-200 bg-orange-400">
-                {/* YouTube Player */}
-                <div className="w-full h-1/3 bg-red-600 mb-4 rounded-md overflow-hidden flex items-center">
-                    {currentSong && (
-                        <YouTube
-                            videoId={currentSong.extractedId}
-                            opts={{
-                                height: "100%",
-                                width: '100%',
-                                playerVars: {
-                                    autoplay: 1,
-                                    controls: 0,
-                                    modestbranding: 1,          //remove the YouTube logo
-                                    rel: 0,                     //disable related videos at the end
-                                    fs: 1,
-                                    iv_load_policy: 3,
-                                    // loop:0,
-                                    // playlist: currentSong.extractedId,
-                                },
-                            }}
-                        />
-                    )}
-                    <div className="pl-2 flex flex-col h-full pt-4">
-                        <h2 className="text-xl font-bold mb-4">Now Playing</h2>
-                        <p className="text-muted-foreground">{currentSong?.title || "No song playing"}</p>
+
+        <div className="relative h-full w-full bg-slate-950"><div className="absolute bottom-0 left-[-20%] right-0 top-[-10%] h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle_farthest-side,rgba(255,0,182,.15),rgba(255,255,255,0))]"></div><div className="absolute bottom-0 right-[-20%] top-[-10%] h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle_farthest-side,rgba(255,0,182,.15),rgba(255,255,255,0))]"></div>
+            <div className="flex h-screen pt-20">
+                {/* Left Column - Player and Queue */}
+                <div className="w-1/2 flex flex-col p-4 border-r border-gray-200">
+                    {/* YouTube Player */}
+                    <div className="w-full h-1/3 mb-4 rounded-md overflow-hidden flex items-center border-2 px-2">
+                        {currentSong && (
+                            <YouTube
+                                videoId={currentSong.extractedId}
+                                opts={{
+                                    height: "100%",
+                                    width: '100%',
+                                    playerVars: {
+                                        autoplay: 1,
+                                        controls: 0,
+                                        modestbranding: 1,          //remove the YouTube logo
+                                        rel: 0,                     //disable related videos at the end
+                                        fs: 1,
+                                        iv_load_policy: 3,
+                                        // loop:0,
+                                        // playlist: currentSong.extractedId,
+                                    },
+                                }}
+                                onReady={(e) => setPlayer(e.target)}
+                            />
+                        )}
+                        <div className="pl-2 flex flex-col h-full pt-4">
+                            <h2 className="text-xl font-bold mb-4">Now Playing</h2>
+                            <p className="text-muted-foreground">{currentSong?.title || "No song playing"}</p>
+                        </div>
+                    </div>
+
+                    {/* Song Queue */}
+                    <div className="flex-1 overflow-y-auto border-2 px-4 rounded-md">
+                        <h2 className="text-xl font-bold mb-4 text-white pt-1">Up Next</h2>
+
+                        {error && <p className="text-red-500 mb-4">{error}</p>}
+
+                        {loading.songs ? (
+                            <p>Loading songs...</p>
+                        ) : (
+                            <ul className="space-y-3">
+                                {songQueue.map((song) => (
+                                    <li key={song.id} className="flex items-center p-3 bg-white rounded-md shadow-sm">
+                                        <img
+                                            src={song.thumbnail || "/placeholder.svg"}
+                                            alt={song.title}
+                                            className="w-20 h-14 object-cover rounded mr-3"
+                                        />
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-medium truncate">{song.title}</p>
+                                        </div>
+                                        <div className="flex items-center ml-4">
+                                            <button
+                                                onClick={() => handleUpvote(song.id)}
+                                                className="flex items-center gap-1 px-2 py-1 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
+                                            >
+                                                <ThumbsUp className="w-4 h-4" />
+                                                <span>{song.upvotes.length}</span>
+                                            </button>
+                                        </div>
+                                    </li>
+                                ))}
+
+                                {songQueue.length === 0 && !loading.songs && (
+                                    <p className="text-gray-500">No songs in queue. Add one!</p>
+                                )}
+                            </ul>
+                        )}
                     </div>
                 </div>
 
-                {/* Song Queue */}
-                <div className="flex-1 overflow-y-auto">
-                    <h2 className="text-xl font-bold mb-4">Up Next</h2>
 
-                    {error && <p className="text-red-500 mb-4">{error}</p>}
+                {/* Right Column - Add Song and Participants */}
+                <div className="w-1/2 flex flex-col p-4">
+                    {/* Add Song Section */}
+                    <div className="h-1/3 mb-4 border-2 px-4 py-2 rounded-md">
+                        <h2 className="text-xl font-bold mb-4 text-white">Add a Song</h2>
+                        <div className="flex gap-2 mb-4">
+                            <input
+                                type="text"
+                                value={newSongUrl}
+                                onChange={(e) => setNewSongUrl(e.target.value)}
+                                placeholder="Paste YouTube URL here"
+                                className="flex-1 px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                            />
+                            <button
+                                onClick={handleAddSong}
+                                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                            >
+                                Add Song
+                            </button>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                            Paste a YouTube video URL to add it to the queue. The community can upvote songs to change their order.
+                        </p>
+                    </div>
 
-                    {loading.songs ? (
-                        <p>Loading songs...</p>
-                    ) : (
-                        <ul className="space-y-3">
-                            {songQueue.map((song) => (
-                                <li key={song.id} className="flex items-center p-3 bg-white rounded-md shadow-sm">
-                                    <img
-                                        src={song.thumbnail || "/placeholder.svg"}
-                                        alt={song.title}
-                                        className="w-20 h-14 object-cover rounded mr-3"
-                                    />
-                                    <div className="flex-1 min-w-0">
-                                        <p className="font-medium truncate">{song.title}</p>
+                    {/* Participants Section */}
+                    <div className="flex-1 overflow-y-auto border-2 px-4 rounded-md">
+                        <h2 className="text-xl font-bold mb-4 text-white pt-1">Room Participants</h2>
+
+                        {loading.participants ? (
+                            <p>Loading participants...</p>
+                        ) : (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto ">
+                                {participants.map((participant) => (
+                                    <div key={participant.id} className="flex items-center p-3 bg-card rounded-md shadow-sm">
+                                        <div className="w-10 h-10 rounded-full overflow-hidden mr-3">
+                                            {participant.avatarUrl ? (
+                                                <img
+                                                    src={participant.avatarUrl || "/placeholder.svg"}
+                                                    alt={participant.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+                                                    {participant.name.charAt(0)}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <span className="truncate">{participant.name}</span>
                                     </div>
-                                    <div className="flex items-center ml-4">
-                                        <button
-                                            onClick={() => handleUpvote(song.id)}
-                                            className="flex items-center gap-1 px-2 py-1 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
-                                        >
-                                            <ThumbsUp className="w-4 h-4" />
-                                            <span>{song.upvotes.length}</span>
-                                        </button>
-                                    </div>
-                                </li>
-                            ))}
+                                ))}
 
-                            {songQueue.length === 0 && !loading.songs && (
-                                <p className="text-gray-500">No songs in queue. Add one!</p>
-                            )}
-                        </ul>
-                    )}
+                                {participants.length === 0 && !loading.participants && (
+                                    <p className="text-muted-foreground col-span-3">No participants yet.</p>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
-
-
-            {/* Right Column - Add Song and Participants */}
-            <div className="w-1/2 flex flex-col p-4">
-                {/* Add Song Section */}
-                <div className="flex-1 mb-4">
-                    <h2 className="text-xl font-bold mb-4">Add a Song</h2>
-                    <div className="flex gap-2 mb-4">
-                        <input
-                            type="text"
-                            value={newSongUrl}
-                            onChange={(e) => setNewSongUrl(e.target.value)}
-                            placeholder="Paste YouTube URL here"
-                            className="flex-1 px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                        />
-                        <button
-                            onClick={handleAddSong}
-                            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-                        >
-                            Add Song
-                        </button>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                        Paste a YouTube video URL to add it to the queue. The community can upvote songs to change their order.
-                    </p>
-                </div>
-
-                {/* Participants Section */}
-                <div className="flex-1 overflow-hidden">
-                    <h2 className="text-xl font-bold mb-4">Room Participants</h2>
-
-                    {loading.participants ? (
-                        <p>Loading participants...</p>
-                    ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto max-h-[calc(50vh-8rem)]">
-                            {participants.map((participant) => (
-                                <div key={participant.id} className="flex items-center p-3 bg-card rounded-md shadow-sm">
-                                    <div className="w-10 h-10 rounded-full overflow-hidden mr-3">
-                                        {participant.avatarUrl ? (
-                                            <img
-                                                src={participant.avatarUrl || "/placeholder.svg"}
-                                                alt={participant.name}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full bg-primary/20 flex items-center justify-center text-primary font-bold">
-                                                {participant.name.charAt(0)}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <span className="truncate">{participant.name}</span>
-                                </div>
-                            ))}
-
-                            {participants.length === 0 && !loading.participants && (
-                                <p className="text-muted-foreground col-span-3">No participants yet.</p>
-                            )}
-                        </div>
-                    )}
-                </div>
+            {/* media control */}
+            <div>
+                {/* Pass the player instance to MediaControl */}
+                <MediaControl player={player} />
             </div>
         </div>
     )

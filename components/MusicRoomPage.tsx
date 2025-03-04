@@ -6,6 +6,7 @@ import { ThumbsUp } from "lucide-react"
 import { useParams } from 'next/navigation';
 import YouTube from 'react-youtube';
 import { m } from "framer-motion";
+import { useSession } from "next-auth/react";
 
 
 
@@ -13,9 +14,21 @@ import { m } from "framer-motion";
 interface Song {
     id: string
     title: string
-    thumbnailUrl: string
-    youtubeId: string
-    upvotes: number
+    thumbnail: string
+    extractedId: string
+    upvotes: up[],
+    type: string,
+    active: boolean,
+    userId: null | string,
+    url: string,
+    roomId: string,
+}
+interface up {
+    id: string,
+    value: number,
+    userId: null | string,
+    participantId: string,
+    streamId: string
 }
 
 interface Participant {
@@ -28,6 +41,8 @@ export default function MusicRoomPage() {
     // Room ID would typically come from URL params or props
     const params = useParams();
     const { roomId } = params;
+    const session = useSession();
+
 
     //get all the streams of that particular room
     // useEffect(()=>{
@@ -47,6 +62,13 @@ export default function MusicRoomPage() {
         songs: false,
         participants: false,
     })
+
+    // State to track songs the user has upvoted (by id)
+    const [upvotedSongIds, setUpvotedSongIds] = useState<string[]>([])
+    // State for YouTube player controls
+    const [player, setPlayer] = useState<any>(null);
+    const [playing, setPlaying] = useState(false);
+    const [volume, setVolume] = useState(50);
 
     // Fetch songs and participants on component mount
     useEffect(() => {
@@ -76,38 +98,6 @@ export default function MusicRoomPage() {
             }
         } catch (err) {
             setError("Failed to load songs. Please try again later.")
-            // Use placeholder data for demo purposes
-            // const placeholderSongs: Song[] = [
-            //     {
-            //         id: "1",
-            //         title: "Rick Astley - Never Gonna Give You Up",
-            //         thumbnailUrl: "/placeholder.svg?height=90&width=120",
-            //         youtubeId: "dQw4w9WgXcQ",
-            //         upvotes: 15,
-            //     },
-            //     {
-            //         id: "2",
-            //         title: "Toto - Africa",
-            //         thumbnailUrl: "/placeholder.svg?height=90&width=120",
-            //         youtubeId: "FTQbiNvZqaY",
-            //         upvotes: 12,
-            //     },
-            //     {
-            //         id: "3",
-            //         title: "Queen - Bohemian Rhapsody",
-            //         thumbnailUrl: "/placeholder.svg?height=90&width=120",
-            //         youtubeId: "fJ9rUzIMcZQ",
-            //         upvotes: 10,
-            //     },
-            //     {
-            //         id: "4",
-            //         title: "Daft Punk - Get Lucky",
-            //         thumbnailUrl: "/placeholder.svg?height=90&width=120",
-            //         youtubeId: "5NV6Rdv1a3I",
-            //         upvotes: 8,
-            //     },
-            // ]
-
             // setCurrentSong(placeholderSongs[0])
             // setSongQueue(placeholderSongs.slice(1))
         } finally {
@@ -158,7 +148,11 @@ export default function MusicRoomPage() {
                 upvotes: 0,
             }
 
-            setSongQueue((prev) => [...prev, newSong])
+            setSongQueue(prev => {
+                const newQueue = [...prev, newSong]
+                newQueue.sort((a, b) => b.upvotes - a.upvotes)
+                return newQueue
+            })
             setNewSongUrl("")
 
             // Refresh song list to get actual data
@@ -168,15 +162,27 @@ export default function MusicRoomPage() {
         }
     }
 
-    // Handle upvoting a song
+    // Handle upvoting a song with optimistic UI update and reordering queue
     const handleUpvote = async (songId: string) => {
+        console.log("Upvoting song with ID:", songId)
         try {
-            await axios.post(`/api/rooms/${roomId}/songs/${songId}/upvote`)
-
-            // Optimistically update UI
-            setSongQueue((prev) => prev.map((song) => (song.id === songId ? { ...song, upvotes: song.upvotes + 1 } : song)))
+            // Check if user is authenticated or guest
+            if (session.data?.user) {
+                // Authenticated user: no extra payload needed
+                await axios.post(`/api/rooms/${roomId}/streams/${songId}/vote`)
+            } else {
+                // Guest: get participantId from local storage
+                const storedParticipantId = localStorage.getItem('participantId')
+                await axios.post(`/api/rooms/${roomId}/streams/${songId}/vote`, {
+                    participantId: storedParticipantId,
+                })
+            }
+            // After toggling vote, refresh song list to update vote counts and ordering
+            fetchSongs()
         } catch (err) {
+            console.error(err)
             setError("Failed to upvote. Please try again.")
+            fetchSongs()
         }
     }
 
@@ -237,7 +243,7 @@ export default function MusicRoomPage() {
                                             className="flex items-center gap-1 px-2 py-1 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
                                         >
                                             <ThumbsUp className="w-4 h-4" />
-                                            <span>{song.upvotes}</span>
+                                            <span>{song.upvotes.length}</span>
                                         </button>
                                     </div>
                                 </li>

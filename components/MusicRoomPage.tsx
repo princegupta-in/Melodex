@@ -5,8 +5,8 @@ import axios from "axios"
 import { ThumbsUp } from "lucide-react"
 import { useParams } from 'next/navigation';
 import YouTube from 'react-youtube';
-import { m } from "framer-motion";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 
 
@@ -34,7 +34,10 @@ interface up {
 interface Participant {
     id: string
     name: string
-    avatarUrl?: string
+    roomId: string
+    role: "CREATOR" | "SUBCREATOR"
+    userId: null | string
+    avatarUrl: string
 }
 
 export default function MusicRoomPage() {
@@ -42,6 +45,8 @@ export default function MusicRoomPage() {
     const params = useParams();
     const { roomId } = params;
     const session = useSession();
+    const router = useRouter();
+
 
 
     //get all the streams of that particular room
@@ -63,21 +68,27 @@ export default function MusicRoomPage() {
         participants: false,
     })
 
-    // State to track songs the user has upvoted (by id)
-    const [upvotedSongIds, setUpvotedSongIds] = useState<string[]>([])
     // State for YouTube player controls
     const [player, setPlayer] = useState<any>(null);
     const [playing, setPlaying] = useState(false);
     const [volume, setVolume] = useState(50);
+    //prince
+
+    // Check if the user is joined (for guests, check localStorage; authenticated users are auto-joined)
+    useEffect(() => {
+        const storedParticipantId = localStorage.getItem('participantId');
+        if (!session.data?.user && !storedParticipantId) {
+            router.push(`/room/${roomId}/join`)
+        }
+    }, [session]);
 
     // Fetch songs and participants on component mount
     useEffect(() => {
         fetchSongs()
-        // fetchParticipants()
+        fetchParticipants()
     }, [])
 
     // Fetch songs from API
-    // console.log()
     const fetchSongs = async () => {
         setLoading((prev) => ({ ...prev, songs: true })) //keep all of prev and mark song loading true
         setError(null)
@@ -85,21 +96,19 @@ export default function MusicRoomPage() {
         try {
             const response = await axios.get(`/api/rooms/${roomId}/streams`)
             const songs = response.data.streams || []
-            // console.log("❌❌❌❌❌❌❌",songs)
 
+            // If songs exist, set the first song as current (if none is playing)
             if (songs.length > 0) {
-                // Set the first song as current song if none is playing
                 if (!currentSong) {
                     setCurrentSong(songs[0])
                     setSongQueue(songs.slice(1))
                 } else {
+                    // Exclude currentSong from the queue
                     setSongQueue(songs.filter((song: Song) => song.id !== currentSong.id))
                 }
             }
         } catch (err) {
             setError("Failed to load songs. Please try again later.")
-            // setCurrentSong(placeholderSongs[0])
-            // setSongQueue(placeholderSongs.slice(1))
         } finally {
             setLoading((prev) => ({ ...prev, songs: false }))
         }
@@ -113,15 +122,8 @@ export default function MusicRoomPage() {
             const response = await axios.get(`/api/rooms/${roomId}/participants`)
             setParticipants(response.data.participants || [])
         } catch (err) {
-            // Use placeholder data for demo purposes
-            setParticipants([
-                { id: "1", name: "Jane Doe", avatarUrl: "/placeholder.svg?height=50&width=50" },
-                { id: "2", name: "John Smith", avatarUrl: "/placeholder.svg?height=50&width=50" },
-                { id: "3", name: "Alex Johnson", avatarUrl: "/placeholder.svg?height=50&width=50" },
-                { id: "4", name: "Sam Wilson", avatarUrl: "/placeholder.svg?height=50&width=50" },
-                { id: "5", name: "Taylor Brown", avatarUrl: "/placeholder.svg?height=50&width=50" },
-                { id: "6", name: "Jordan Lee", avatarUrl: "/placeholder.svg?height=50&width=50" },
-            ])
+            console.error(err)
+            setError("Failed to load participants. Please try again later.")
         } finally {
             setLoading((prev) => ({ ...prev, participants: false }))
         }
@@ -136,20 +138,6 @@ export default function MusicRoomPage() {
                 url: newSongUrl,
             })
 
-            // Optimistically update UI
-            // const newSong: Song = {
-            //     id: Date.now().toString(), // Temporary ID
-            //     title: "New Song Added", // Placeholder title
-            //     thumbnailUrl: `/placeholder.svg?height=90&width=120`,
-            //     youtubeId,
-            //     upvotes: 0,
-            // }
-
-            // setSongQueue(prev => {
-            //     const newQueue = [...prev, newSong]
-            //     newQueue.sort((a, b) => b.upvotes.length - a.upvotes.length)
-            //     return newQueue
-            // })
             setNewSongUrl("")
 
             // Refresh song list to get actual data

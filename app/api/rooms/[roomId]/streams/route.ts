@@ -107,7 +107,7 @@ export async function POST(req: NextRequest, { params }: { params: { roomId: str
                 duration,
             }
         });
-        return NextResponse.json({ message: "Music added successfully", title, thumbnail, }, { status: 200 });
+        return NextResponse.json({ message: "Music added successfully", title, thumbnail, duration }, { status: 200 });
 
 
     } catch (error) {

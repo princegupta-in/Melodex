@@ -132,27 +132,24 @@ export default function MusicRoomPage() {
         if (!newSongUrl.trim()) return
 
         try {
-            // Extract YouTube ID from URL (simplified example)
-            const youtubeId = newSongUrl.includes("v=") ? newSongUrl.split("v=")[1].split("&")[0] : newSongUrl
-
-            await axios.post(`/api/rooms/${roomId}/songs`, {
-                youtubeUrl: newSongUrl,
+            await axios.post(`/api/rooms/${roomId}/streams`, {
+                url: newSongUrl,
             })
 
             // Optimistically update UI
-            const newSong: Song = {
-                id: Date.now().toString(), // Temporary ID
-                title: "New Song Added", // Placeholder title
-                thumbnailUrl: `/placeholder.svg?height=90&width=120`,
-                youtubeId,
-                upvotes: 0,
-            }
+            // const newSong: Song = {
+            //     id: Date.now().toString(), // Temporary ID
+            //     title: "New Song Added", // Placeholder title
+            //     thumbnailUrl: `/placeholder.svg?height=90&width=120`,
+            //     youtubeId,
+            //     upvotes: 0,
+            // }
 
-            setSongQueue(prev => {
-                const newQueue = [...prev, newSong]
-                newQueue.sort((a, b) => b.upvotes - a.upvotes)
-                return newQueue
-            })
+            // setSongQueue(prev => {
+            //     const newQueue = [...prev, newSong]
+            //     newQueue.sort((a, b) => b.upvotes.length - a.upvotes.length)
+            //     return newQueue
+            // })
             setNewSongUrl("")
 
             // Refresh song list to get actual data

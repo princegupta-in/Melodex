@@ -60,6 +60,7 @@ async function fetchYouTubeDetails(videoId: string) {
 // API Route
 export async function POST(req: NextRequest, { params }: { params: { roomId: string } }) {
     const session = await getServerSession(authOptions);
+    const { roomId } = await params;
 
     try {
         const e = validRequestSchema.safeParse(await req.json());
@@ -86,7 +87,7 @@ export async function POST(req: NextRequest, { params }: { params: { roomId: str
                 type: "Youtube",
                 title,
                 thumbnail,
-                roomId: params.roomId,
+                roomId: roomId,
             }
         });
         return NextResponse.json({ message: "Music added successfully", title, thumbnail, }, { status: 200 });

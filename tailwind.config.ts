@@ -16,7 +16,6 @@ export default {
 		"*.{js,ts,jsx,tsx,mdx}",
 	],
 	theme: {
-		// added from second file for container settings
 		container: {
 			center: true,
 			padding: "2rem",
@@ -26,7 +25,6 @@ export default {
 		},
 		extend: {
 			colors: {
-				// merged colors from both files
 				border: "hsl(var(--border))",
 				input: "hsl(var(--input))",
 				ring: "hsl(var(--ring))",
@@ -60,7 +58,7 @@ export default {
 					DEFAULT: "hsl(var(--destructive))",
 					foreground: "hsl(var(--destructive-foreground))",
 				},
-				// additional chart colors from first file
+				// additional chart colors from the first file
 				chart: {
 					"1": "hsl(var(--chart-1))",
 					"2": "hsl(var(--chart-2))",
@@ -74,10 +72,9 @@ export default {
 				md: "calc(var(--radius) - 2px)",
 				sm: "calc(var(--radius) - 4px)",
 			},
-			// keyframes and animations from second file
 			keyframes: {
 				"accordion-down": {
-					from: { height: '0px' },
+					from: { height: "0px" },
 					to: { height: "var(--radix-accordion-content-height)" },
 				},
 				"accordion-up": {

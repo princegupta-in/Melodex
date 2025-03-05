@@ -105,7 +105,7 @@ export default function MediaControl({ player, videoDuration }: MediaControlProp
     };
 
     return (
-        <div className="w-full max-w-3xl mx-auto p-4 bg-background rounded-lg shadow-sm border">
+        <div className="w-full mx-auto px-4 pt-1 pb-0.5 bg-background shadow-sm border">
             <div className="space-y-4 relative">
                 {/* Seek bar */}
                 <div className="space-y-1">
@@ -117,7 +117,7 @@ export default function MediaControl({ player, videoDuration }: MediaControlProp
                         onValueChange={handleSeekChange}
                         className="cursor-pointer"
                     />
-                    <div className="flex justify-between text-xs text-muted-foreground">
+                    <div className="flex justify-between text-xs text-muted-foreground absolute w-full px-1">
                         <span>{formatTime(currentTime)}</span>
                         <span>{formatTime(videoDuration)}</span>
                     </div>

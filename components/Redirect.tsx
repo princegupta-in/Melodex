@@ -10,7 +10,7 @@ const Redirect = () => {
 
     useEffect(() => {
         if (session.data?.user) {
-            router.push('/dashboard');
+            router.push('/create-room');
         }
     }, [session])
     return null;

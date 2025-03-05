@@ -56,3 +56,14 @@
     @apply bg-background text-foreground;
   }
 }
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  /* Optional: If you never want the browser to scroll at all: */
+  overflow: hidden;
+}
+

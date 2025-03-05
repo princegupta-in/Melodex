@@ -8,7 +8,6 @@ import YouTube from 'react-youtube';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import MediaControl from "./MediaControl";
-import { on } from "events";
 
 
 
@@ -24,6 +23,7 @@ interface Song {
     userId: null | string,
     url: string,
     roomId: string,
+    duration: number
 }
 interface up {
     id: string,
@@ -134,7 +134,6 @@ export default function MusicRoomPage() {
     // Handle adding a new song
     const handleAddSong = async () => {
         if (!newSongUrl.trim()) return
-
         try {
             await axios.post(`/api/rooms/${roomId}/streams`, {
                 url: newSongUrl,
@@ -175,8 +174,8 @@ export default function MusicRoomPage() {
 
     return (
 
-        <div className="relative h-full w-full bg-slate-950"><div className="absolute bottom-0 left-[-20%] right-0 top-[-10%] h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle_farthest-side,rgba(255,0,182,.15),rgba(255,255,255,0))]"></div><div className="absolute bottom-0 right-[-20%] top-[-10%] h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle_farthest-side,rgba(255,0,182,.15),rgba(255,255,255,0))]"></div>
-            <div className="flex h-screen pt-20">
+        <div>
+            <div className="flex h-screen pt-20 pb-16">
                 {/* Left Column - Player and Queue */}
                 <div className="w-1/2 flex flex-col p-4 border-r border-gray-200">
                     {/* YouTube Player */}
@@ -309,9 +308,9 @@ export default function MusicRoomPage() {
                 </div>
             </div>
             {/* media control */}
-            <div>
+            <div className="fixed bottom-0 left-0 right-0 z-50">
                 {/* Pass the player instance to MediaControl */}
-                <MediaControl player={player} />
+                <MediaControl player={player} videoDuration={currentSong?.duration || 0} />
             </div>
         </div>
     )

@@ -105,7 +105,11 @@ export default function MusicRoomPage() {
 
         // Only emit joinRoom if the user is authenticated OR valid participant data exists
         // if (session.data?.user ||participant?.id) {
-        if (participant?.id) {
+        if (session.data?.user) {
+            socket.emit("joinRoom", roomId);
+            // socket.emit("participantJoined", { roomId, id: participant.id, name: participant.name, avatarUrl: "" });
+        }
+        else if (participant?.id) {
             console.log("🍭", participant)
 
             socket.emit("joinRoom", roomId);

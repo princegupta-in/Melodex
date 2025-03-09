@@ -82,8 +82,8 @@ export default function MusicRoomPage() {
 
     // Check if the user is joined (for guests, check localStorage; authenticated users are auto-joined)
     useEffect(() => {
-        const storedParticipantId = localStorage.getItem('participantId');
-        if (!session.data?.user && !storedParticipantId) {
+        const storedParticipantData = localStorage.getItem('participantData')
+        if (!session.data?.user && !storedParticipantData) {
             router.push(`/room/${roomId}/join`)
         }
     }, [session]);
@@ -99,15 +99,44 @@ export default function MusicRoomPage() {
         if (!socket) return;
 
         // Retrieve stored participant data (should be stored as JSON in your join flow)
-        const storedParticipantData = localStorage.getItem("participantData");
+        const storedParticipantData = (localStorage.getItem("participantData"));
         const participant = storedParticipantData ? JSON.parse(storedParticipantData) : null;
+        console.log("🍭", participant)
 
         // Only emit joinRoom if the user is authenticated OR valid participant data exists
-        if (session.data?.user || (participant && participant.id)) {
+        // if (session.data?.user ||participant?.id) {
+        if (participant?.id) {
+            console.log("🍭", participant)
+
             socket.emit("joinRoom", roomId);
-            // [Optional] Emit participantJoined if you want to broadcast this info
-            socket.emit("participantJoined", { roomId, participant });
+            socket.emit("participantJoined", { roomId, id: participant.id, name: participant.name, avatarUrl: "" });
+            // if (storedParticipantData) {
+            //     const { id, name } = JSON.parse(storedParticipantData);
+            //     // [Optional] Emit participantJoined if you want to broadcast this info
+            //     socket.emit("participantJoined", { roomId, id, name: name || "cutepi-from-session", avatarUrl: "" });
+            // }
         }
+
+
+        // if(participants.length>0){
+
+        //     console.log("🍭", participants)
+
+        // }
+        // Define event handler for participant joined events via socket
+        const handleParticipantJoined = (data: any) => {
+            console.log("❌❌❌", data);
+            if (data.roomId === roomId) {
+                console.log("Socket event - participantJoined:", data);
+                // Avoid duplicates by checking if the participant already exists
+                setParticipants(prev => {
+                    if (!prev.find((p) => p.id === data?.id)) {
+                        return [...prev, { id: data.id, name: data.name, roomId: data.roomId, role: "SUBCREATOR", userId: null, avatarUrl: data.avatarUrl }];
+                    }
+                    return prev;
+                });
+            }
+        };
 
         // Define event handler for new songs added via socket
         const handleSongAdded = (data: any) => {
@@ -129,19 +158,6 @@ export default function MusicRoomPage() {
             }
         };
 
-        // Define event handler for participant joined events via socket
-        const handleParticipantJoined = (data: any) => {
-            if (data.roomId === roomId) {
-                console.log("Socket event - participantJoined:", data);
-                // Avoid duplicates by checking if the participant already exists
-                setParticipants(prev => {
-                    if (!prev.find(p => p.id === data.participant.id)) {
-                        return [...prev, data.participant];
-                    }
-                    return prev;
-                });
-            }
-        };
 
         // Register socket event listeners
         socket.on("songAdded", handleSongAdded);
@@ -225,10 +241,13 @@ export default function MusicRoomPage() {
                 await axios.post(`/api/rooms/${roomId}/streams/${songId}/vote`)
             } else {
                 // Guest: get participantId from local storage
-                const storedParticipantId = localStorage.getItem('participantId')
-                await axios.post(`/api/rooms/${roomId}/streams/${songId}/vote`, {
-                    participantId: storedParticipantId,
-                })
+                const storedParticipantData = localStorage.getItem('participantData')
+                if (storedParticipantData) {
+                    const { id } = JSON.parse(storedParticipantData);
+                    await axios.post(`/api/rooms/${roomId}/streams/${songId}/vote`, {
+                        participantId: id,
+                    })
+                }
             }
             // After toggling vote, refresh song list to update vote counts and ordering
             fetchSongs()

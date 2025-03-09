@@ -15,7 +15,7 @@ app.prepare().then(() => {
     // Initialize Socket.IO
     const io = new SocketIOServer(httpServer, {
         cors: {
-            origin: "*", // In production, restrict this to your domain
+            origin: "*", // Adjust in production
             methods: ["GET", "POST"],
             credentials: true,
         },
@@ -24,29 +24,28 @@ app.prepare().then(() => {
     io.on("connection", (socket) => {
         console.log("👻 New client connected:", socket.id);
 
-        // When a client joins a room, add them to that room.
+        // When a client emits "joinRoom", just join the room
         socket.on("joinRoom", (roomId) => {
             socket.join(roomId);
             console.log(`🚀 Socket ${socket.id} joined room ${roomId}`);
-            // Note: Do not broadcast participant info here yet.
         });
 
-        // Listen for participantJoined event.
-        // The client should emit this after they've joined (i.e. after entering their name).
+        // When a client emits "participantJoined" (with full participant data),
+        // broadcast it to everyone else in the room.
         socket.on("participantJoined", (data) => {
-            // Data should be: { roomId, participant: { id, name, avatarUrl, ... } }
-            console.log("👋 Participant joined:", data);
-            // Broadcast to everyone in the room (including the joining socket if needed)
-            io.to(data.roomId).emit("participantJoined", data);
+            console.log("👋 participantJoined event received:", data);
+            // Broadcasting to everyone in the room except the sender.
+            socket.broadcast.to(data.roomId).emit("participantJoined", data);
+            // Alternatively, if you want all clients (including the sender) to get the event, use:
+            // io.to(data.roomId).emit("participantJoined", data);
         });
 
-        // Listen for newSong event
+        // Other events:
         socket.on("newSong", (data) => {
             console.log(`🎵 New song in room ${data.roomId}:`, data.song);
             io.to(data.roomId).emit("songAdded", data);
         });
 
-        // Listen for voteUpdate event
         socket.on("voteUpdate", (data) => {
             console.log(`🔄 Vote update in room ${data.roomId} for stream ${data.streamId}:`, data);
             io.to(data.roomId).emit("voteUpdated", data);
@@ -57,9 +56,8 @@ app.prepare().then(() => {
         });
     });
 
-    expressApp.all("*", (req, res) => {
-        return handle(req, res);
-    });
+    // Let Next.js handle all other routes
+    expressApp.all("*", (req, res) => handle(req, res));
 
     httpServer.listen(port, (err) => {
         if (err) throw err;

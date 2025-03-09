@@ -28,9 +28,10 @@ export default function JoinRoom() {
     //if user is authenticated or guest id is already stored in local storage, then redirect to room page
     useEffect(() => {
         // Check if a participantId is already stored in local storage
-        const storedParticipantId = localStorage.getItem('participantId');
-        if (storedParticipantId) {
-            setParticipantId(storedParticipantId);
+        const storedParticipantData = localStorage.getItem('participantData');
+        if (storedParticipantData) {
+            const { id } = JSON.parse(storedParticipantData);
+            setParticipantId(id);
         }
     }, [roomId]);
 
@@ -53,8 +54,9 @@ export default function JoinRoom() {
         try {
             const res = await axios.post(`/api/rooms/${roomId}/join`, { name: guestName });
             const participant = res.data.participant;
-            // Save participant ID to local storage
-            localStorage.setItem('participantId', participant.id);
+            // Save participant Data to local storage
+            //Since localStorage only supports strings, you need to use JSON.stringify() when saving objects and JSON.parse() when retrieving them.
+            localStorage.setItem('participantData', JSON.stringify({ id: participant.id, name: participant.name }));
             setParticipantId(participant.id);
             // Redirect to the new room's page
             router.push(`/room/${roomId}`);

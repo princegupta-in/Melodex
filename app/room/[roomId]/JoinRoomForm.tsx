@@ -15,9 +15,10 @@ export default function JoinRoomForm({ roomId }: JoinRoomFormProps) {
 
   useEffect(() => {
     // Check if a participantId is already stored in local storage
-    const storedParticipantId = localStorage.getItem('participantId');
-    if (storedParticipantId) {
-      setParticipantId(storedParticipantId);
+    const storedParticipantData = (localStorage.getItem('participantData'));
+    if (storedParticipantData) {
+      const { id } = JSON.parse(storedParticipantData);
+      setParticipantId(id);
     }
   }, []);
 
@@ -28,7 +29,7 @@ export default function JoinRoomForm({ roomId }: JoinRoomFormProps) {
       const res = await axios.post(`/api/rooms/${roomId}/join`, { name });
       const participant = res.data.participant;
       // Save participant ID to local storage
-      localStorage.setItem('participantId', participant.id);
+      localStorage.setItem('participantData', JSON.stringify({ id: participant.id, name: participant.name }));
       setParticipantId(participant.id);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Error joining room');

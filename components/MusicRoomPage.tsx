@@ -8,6 +8,8 @@ import YouTube from 'react-youtube';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import MediaControl from "./MediaControl";
+import { useSocket } from "@/lib/socket/SocketContext";
+
 
 
 
@@ -48,6 +50,8 @@ export default function MusicRoomPage() {
     const { roomId } = params;
     const session = useSession();
     const router = useRouter();
+    const socket = useSocket();
+
 
 
 
@@ -89,6 +93,69 @@ export default function MusicRoomPage() {
         fetchSongs()
         fetchParticipants()
     }, [])
+
+    // [SOCKET] SOCKET.IO INTEGRATION: Conditional joinRoom and event listeners
+    useEffect(() => {
+        if (!socket) return;
+
+        // Retrieve stored participant data (should be stored as JSON in your join flow)
+        const storedParticipantData = localStorage.getItem("participantData");
+        const participant = storedParticipantData ? JSON.parse(storedParticipantData) : null;
+
+        // Only emit joinRoom if the user is authenticated OR valid participant data exists
+        if (session.data?.user || (participant && participant.id)) {
+            socket.emit("joinRoom", roomId);
+            // [Optional] Emit participantJoined if you want to broadcast this info
+            socket.emit("participantJoined", { roomId, participant });
+        }
+
+        // Define event handler for new songs added via socket
+        const handleSongAdded = (data: any) => {
+            if (data.roomId === roomId) {
+                console.log("Socket event - songAdded:", data);
+                setSongQueue(prev => [...prev, data.song]);
+            }
+        };
+
+        // Define event handler for vote updates via socket
+        const handleVoteUpdated = (data: any) => {
+            if (data.roomId === roomId) {
+                console.log("Socket event - voteUpdated:", data);
+                setSongQueue(prev =>
+                    prev.map((song) =>
+                        song.id === data.streamId ? { ...song, upvotes: data.upvotes } : song
+                    )
+                );
+            }
+        };
+
+        // Define event handler for participant joined events via socket
+        const handleParticipantJoined = (data: any) => {
+            if (data.roomId === roomId) {
+                console.log("Socket event - participantJoined:", data);
+                // Avoid duplicates by checking if the participant already exists
+                setParticipants(prev => {
+                    if (!prev.find(p => p.id === data.participant.id)) {
+                        return [...prev, data.participant];
+                    }
+                    return prev;
+                });
+            }
+        };
+
+        // Register socket event listeners
+        socket.on("songAdded", handleSongAdded);
+        socket.on("voteUpdated", handleVoteUpdated);
+        socket.on("participantJoined", handleParticipantJoined);
+
+        // Cleanup function to remove listeners on unmount or dependency change
+        return () => {
+            console.log("Cleaning up socket event listeners for MusicRoomPage");
+            socket.off("songAdded", handleSongAdded);
+            socket.off("voteUpdated", handleVoteUpdated);
+            socket.off("participantJoined", handleParticipantJoined);
+        };
+    }, [socket, roomId, session]);
 
     // Fetch songs from API
     const fetchSongs = async () => {
@@ -315,4 +382,3 @@ export default function MusicRoomPage() {
         </div>
     )
 }
-

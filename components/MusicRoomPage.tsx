@@ -98,36 +98,20 @@ export default function MusicRoomPage() {
     useEffect(() => {
         if (!socket) return;
 
+        //PART:A- Join the room
         // Retrieve stored participant data (should be stored as JSON in your join flow)
         const storedParticipantData = (localStorage.getItem("participantData"));
         const participant = storedParticipantData ? JSON.parse(storedParticipantData) : null;
         console.log("🍭", participant)
 
-        // Only emit joinRoom if the user is authenticated OR valid participant data exists
-        // if (session.data?.user ||participant?.id) {
         if (session.data?.user) {
             socket.emit("joinRoom", roomId);
-            // socket.emit("participantJoined", { roomId, id: participant.id, name: participant.name, avatarUrl: "" });
         }
         else if (participant?.id) {
-            console.log("🍭", participant)
-
+            // console.log("🍭", participant)
             socket.emit("joinRoom", roomId);
             socket.emit("participantJoined", { roomId, id: participant.id, name: participant.name, avatarUrl: "" });
-            // if (storedParticipantData) {
-            //     const { id, name } = JSON.parse(storedParticipantData);
-            //     // [Optional] Emit participantJoined if you want to broadcast this info
-            //     socket.emit("participantJoined", { roomId, id, name: name || "cutepi-from-session", avatarUrl: "" });
-            // }
         }
-
-
-        // if(participants.length>0){
-
-        //     console.log("🍭", participants)
-
-        // }
-        // Define event handler for participant joined events via socket
         const handleParticipantJoined = (data: any) => {
             console.log("❌❌❌", data);
             if (data.roomId === roomId) {
@@ -142,6 +126,7 @@ export default function MusicRoomPage() {
             }
         };
 
+        //PART:B- Song Queue
         // Define event handler for new songs added via socket
         const handleSongAdded = (data: any) => {
             if (data.roomId === roomId) {

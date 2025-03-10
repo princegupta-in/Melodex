@@ -37,6 +37,7 @@ model Stream {
   roomId      String
   room        Room       @relation(fields: [roomId], references: [id])
   duration    Int? //video length in seconds
+  createdAt   DateTime   @default(now())
 }
 
 model Upvote {

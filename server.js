@@ -47,7 +47,9 @@ app.prepare().then(() => {
         });
 
         socket.on("voteUpdate", (data) => {
+            // data = { roomId, streamId, upvotes: [...] }
             console.log(`🔄 Vote update in room ${data.roomId} for stream ${data.streamId}:`, data);
+            // Re-broadcast to all clients in the room
             io.to(data.roomId).emit("voteUpdated", data);
         });
 

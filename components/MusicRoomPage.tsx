@@ -137,16 +137,43 @@ export default function MusicRoomPage() {
         };
 
         // Define event handler for vote updates via socket
+        // const handleVoteUpdated = (data: any) => {
+        //     if (data.roomId === roomId) {
+        //         console.log("🔌Socket event - voteUpdated:", data);
+        //         setSongQueue(prev =>
+        //             prev.map((song) =>
+        //                 song.id === data.streamId ? { ...song, upvotes: data.upvotes } : song
+        //             )
+        //         );
+        //     }
+        // };
+        // useEffect(() => {
+        // if (!socket) return;
+
         const handleVoteUpdated = (data: any) => {
+            console.log("Socket event - voteUpdated:", data);
             if (data.roomId === roomId) {
-                console.log("🔌Socket event - voteUpdated:", data);
-                setSongQueue(prev =>
-                    prev.map((song) =>
-                        song.id === data.streamId ? { ...song, upvotes: data.upvotes } : song
-                    )
-                );
+                setSongQueue((prev) => {
+                    // Replace upvotes for the matching song
+                    const newQueue = prev.map((song) =>
+                        song.id === data.streamId
+                            ? { ...song, upvotes: data.upvotes }
+                            : song
+                    );
+                    // Optionally re-sort by upvote count
+                    newQueue.sort((a, b) => b.upvotes.length - a.upvotes.length);
+                    return newQueue;
+                });
             }
         };
+
+        // socket.on("voteUpdated", handleVoteUpdated);
+
+        // return () => {
+        //     socket.off("voteUpdated", handleVoteUpdated);
+        // };
+        // }, [socket, roomId]);
+
 
 
         // Register socket event listeners
@@ -225,22 +252,23 @@ export default function MusicRoomPage() {
     const handleUpvote = async (songId: string) => {
         console.log("Upvoting song with ID:", songId)
         try {
+            let res;
             // Check if user is authenticated or guest
             if (session.data?.user) {
                 // Authenticated user: no extra payload needed
-                await axios.post(`/api/rooms/${roomId}/streams/${songId}/vote`)
+                res = await axios.post(`/api/rooms/${roomId}/streams/${songId}/vote`)
             } else {
                 // Guest: get participantId from local storage
                 const storedParticipantData = localStorage.getItem('participantData')
                 if (storedParticipantData) {
-                    const { id } = JSON.parse(storedParticipantData);
-                    await axios.post(`/api/rooms/${roomId}/streams/${songId}/vote`, {
-                        participantId: id,
+                    const participantData = JSON.parse(storedParticipantData);
+                    res = await axios.post(`/api/rooms/${roomId}/streams/${songId}/vote`, {
+                        participantData
                     })
                 }
             }
             // Emit the vote update event after upvoting
-            socket?.emit("voteUpdate", { roomId, streamId: songId });
+            socket?.emit("voteUpdate", { roomId, streamId: songId, upvotes: res?.data.upvotes });
             // After toggling vote, refresh song list to update vote counts and ordering
             // fetchSongs()
         } catch (err) {

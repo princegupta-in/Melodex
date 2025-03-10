@@ -208,14 +208,14 @@ export default function MusicRoomPage() {
     const handleAddSong = async () => {
         if (!newSongUrl.trim()) return
         try {
-            await axios.post(`/api/rooms/${roomId}/streams`, {
+            const response = await axios.post(`/api/rooms/${roomId}/streams`, {
                 url: newSongUrl,
             })
-
             setNewSongUrl("")
-
+            // Emit the new song event with the new song data
+            socket?.emit("newSong", { roomId, song: response.data });
             // Refresh song list to get actual data
-            fetchSongs()
+            // fetchSongs()
         } catch (err) {
             setError("Failed to add song. Please try again.")
         }

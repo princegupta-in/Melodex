@@ -95,7 +95,7 @@ export async function POST(req: NextRequest, { params }: { params: { roomId: str
         // console.log("Video details⚡⚡:", title, thumbnail, duration);
 
         //create stream
-        await prisma.stream.create({
+        const stream = await prisma.stream.create({
             data: {
                 userId: session?.user.id || null,//will be null for guests
                 url: e.data.url,
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest, { params }: { params: { roomId: str
                 duration,
             }
         });
-        return NextResponse.json({ message: "Music added successfully", title, thumbnail, duration }, { status: 200 });
+        return NextResponse.json({ message: "Music added successfully", title, thumbnail, duration, stream }, { status: 200 });
 
 
     } catch (error) {

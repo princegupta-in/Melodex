@@ -239,12 +239,14 @@ export default function MusicRoomPage() {
                     })
                 }
             }
+            // Emit the vote update event after upvoting
+            socket?.emit("voteUpdate", { roomId, streamId: songId });
             // After toggling vote, refresh song list to update vote counts and ordering
-            fetchSongs()
+            // fetchSongs()
         } catch (err) {
             console.error(err)
             setError("Failed to upvote. Please try again.")
-            fetchSongs()
+            // fetchSongs()
         }
     }
 

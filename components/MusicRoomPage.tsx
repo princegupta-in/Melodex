@@ -98,7 +98,7 @@ export default function MusicRoomPage() {
     useEffect(() => {
         if (!socket) return;
 
-        //PART:A- Join the room
+        //PART:A- Join the room(101-128)
         // Retrieve stored participant data (should be stored as JSON in your join flow)
         const storedParticipantData = (localStorage.getItem("participantData"));
         const participant = storedParticipantData ? JSON.parse(storedParticipantData) : null;
@@ -130,7 +130,8 @@ export default function MusicRoomPage() {
         // Define event handler for new songs added via socket
         const handleSongAdded = (data: any) => {
             if (data.roomId === roomId) {
-                console.log("Socket event - songAdded:", data);
+                console.log("🔌Socket event - songAdded:", data);
+                // Append the new song without refetching the entire list
                 setSongQueue(prev => [...prev, data.song]);
             }
         };
@@ -138,7 +139,7 @@ export default function MusicRoomPage() {
         // Define event handler for vote updates via socket
         const handleVoteUpdated = (data: any) => {
             if (data.roomId === roomId) {
-                console.log("Socket event - voteUpdated:", data);
+                console.log("🔌Socket event - voteUpdated:", data);
                 setSongQueue(prev =>
                     prev.map((song) =>
                         song.id === data.streamId ? { ...song, upvotes: data.upvotes } : song

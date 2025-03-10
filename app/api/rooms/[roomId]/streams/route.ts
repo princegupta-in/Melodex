@@ -105,7 +105,10 @@ export async function POST(req: NextRequest, { params }: { params: { roomId: str
                 thumbnail,
                 roomId,
                 duration,
-            }
+            },
+            include: {
+                upvotes: true, // this will return an empty array if no upvotes exist yet
+            },
         });
         return NextResponse.json({ message: "Music added successfully", title, thumbnail, duration, stream }, { status: 200 });
 

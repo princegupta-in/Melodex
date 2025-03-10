@@ -52,9 +52,6 @@ export default function MusicRoomPage() {
     const router = useRouter();
     const socket = useSocket();
 
-
-
-
     //get all the streams of that particular room
     // useEffect(()=>{
     //     axios.get(`/api/rooms/${roomId}/streams`)
@@ -130,9 +127,12 @@ export default function MusicRoomPage() {
         // Define event handler for new songs added via socket
         const handleSongAdded = (data: any) => {
             if (data.roomId === roomId) {
-                console.log("🔌Socket event - songAdded:", data);
+                // console.log("🔌Socket event - songAdded:", data.roomId, "⚡", data.song.stream);
                 // Append the new song without refetching the entire list
-                setSongQueue(prev => [...prev, data.song]);
+                setSongQueue(prev => {
+                    // console.log("🔥", prev)
+                    return [...prev, data.song.stream]
+                });
             }
         };
 

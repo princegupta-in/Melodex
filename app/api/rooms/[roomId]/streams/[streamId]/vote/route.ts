@@ -6,7 +6,10 @@ import { z } from 'zod';
 
 // For guest votes, require a participantId (if no session is available)
 const guestVoteSchema = z.object({
-    participantId: z.string().min(1, 'will get this from the local storage'),
+    participantData: z.object({
+        id: z.string().min(1),
+        name: z.string().min(1),
+    })
 });
 
 export async function POST(
@@ -32,7 +35,7 @@ export async function POST(
             return NextResponse.json({ error: e.error.flatten().fieldErrors }, { status: 400 });
         }
         identifierField = 'participantId';
-        identifierValue = e.data.participantId;
+        identifierValue = e.data.participantData.id;
         // console.log("👋👋",identifierValue)
     }
 
@@ -61,8 +64,11 @@ export async function POST(
 
         if (existingVote) {
             // Vote exists: remove it (toggle off)
-            await prisma.upvote.delete({ where: { id: existingVote.id } });
-            return NextResponse.json({ message: 'Upvote removed' }, { status: 200 });
+            await prisma.upvote.delete({ where: { id: existingVote.id } });// Fetch the updated upvotes after deletion
+            const updatedUpvotes = await prisma.upvote.findMany({
+                where: { streamId },
+            });
+            return NextResponse.json({ upvotes: updatedUpvotes, message: 'Upvote removed' }, { status: 200 });
         } else {
             // No vote exists: create one (toggle on)
             const voteData: any = {
@@ -71,7 +77,12 @@ export async function POST(
             };
             voteData[identifierField] = identifierValue;
             const newVote = await prisma.upvote.create({ data: voteData });
-            return NextResponse.json({ newVote, message: "Upvote added" }, { status: 200 });
+            // Fetch the updated upvotes after creation
+            const updatedUpvotes = await prisma.upvote.findMany({
+                where: { streamId },
+            });
+            // return NextResponse.json({ newVote, message: "Upvote added" }, { status: 200 });
+            return NextResponse.json({ upvotes: updatedUpvotes, message: "Upvote added" }, { status: 200 });
         }
     } catch (error) {
         //@ts-ignore

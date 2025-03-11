@@ -45,22 +45,12 @@ interface Participant {
 }
 
 export default function MusicRoomPage() {
-    // Room ID would typically come from URL params or props
     const params = useParams();
     const { roomId } = params;
     const session = useSession();
     const router = useRouter();
     const socket = useSocket();
 
-    //get all the streams of that particular room
-    // useEffect(()=>{
-    //     axios.get(`/api/rooms/${roomId}/streams`)
-    //     .then((streams)=>{
-    //         console.log(res.data)
-    //     })
-    // },[])    // const roomId = "example-room-123"
-
-    // State
     const [currentSong, setCurrentSong] = useState<Song | null>(null)
     const [songQueue, setSongQueue] = useState<Song[]>([])
     const [participants, setParticipants] = useState<Participant[]>([])
@@ -75,7 +65,6 @@ export default function MusicRoomPage() {
     const [player, setPlayer] = useState<any>(null);
     const [playing, setPlaying] = useState(false);
     const [volume, setVolume] = useState(50);
-    //prince
 
     // Check if the user is joined (for guests, check localStorage; authenticated users are auto-joined)
     useEffect(() => {
@@ -95,8 +84,7 @@ export default function MusicRoomPage() {
     useEffect(() => {
         if (!socket) return;
 
-        //PART:A- Join the room(101-128)
-        // Retrieve stored participant data (should be stored as JSON in your join flow)
+        // Retrieve stored participant data from localStorage
         const storedParticipantData = (localStorage.getItem("participantData"));
         const participant = storedParticipantData ? JSON.parse(storedParticipantData) : null;
         console.log("🍭", participant)
@@ -105,12 +93,10 @@ export default function MusicRoomPage() {
             socket.emit("joinRoom", roomId);
         }
         else if (participant?.id) {
-            // console.log("🍭", participant)
             socket.emit("joinRoom", roomId);
             socket.emit("participantJoined", { roomId, id: participant.id, name: participant.name, avatarUrl: "" });
         }
         const handleParticipantJoined = (data: any) => {
-            console.log("❌❌❌", data);
             if (data.roomId === roomId) {
                 console.log("Socket event - participantJoined:", data);
                 // Avoid duplicates by checking if the participant already exists
@@ -123,32 +109,14 @@ export default function MusicRoomPage() {
             }
         };
 
-        //PART:B- Song Queue
         // Define event handler for new songs added via socket
         const handleSongAdded = (data: any) => {
             if (data.roomId === roomId) {
-                // console.log("🔌Socket event - songAdded:", data.roomId, "⚡", data.song.stream);
-                // Append the new song without refetching the entire list
                 setSongQueue(prev => {
-                    // console.log("🔥", prev)
                     return [...prev, data.song.stream]
                 });
             }
         };
-
-        // Define event handler for vote updates via socket
-        // const handleVoteUpdated = (data: any) => {
-        //     if (data.roomId === roomId) {
-        //         console.log("🔌Socket event - voteUpdated:", data);
-        //         setSongQueue(prev =>
-        //             prev.map((song) =>
-        //                 song.id === data.streamId ? { ...song, upvotes: data.upvotes } : song
-        //             )
-        //         );
-        //     }
-        // };
-        // useEffect(() => {
-        // if (!socket) return;
 
         const handleVoteUpdated = (data: any) => {
             console.log("Socket event - voteUpdated:", data);
@@ -166,15 +134,6 @@ export default function MusicRoomPage() {
                 });
             }
         };
-
-        // socket.on("voteUpdated", handleVoteUpdated);
-
-        // return () => {
-        //     socket.off("voteUpdated", handleVoteUpdated);
-        // };
-        // }, [socket, roomId]);
-
-
 
         // Register socket event listeners
         socket.on("songAdded", handleSongAdded);

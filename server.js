@@ -55,6 +55,13 @@ app.prepare().then(() => {
         socket.on("disconnect", () => {
             console.log("💀 Client disconnected:", socket.id);
         });
+
+        socket.on("playbackUpdate", (data) => {
+            console.log("Received playbackUpdate from client:", data);
+            io.to(data.roomId).emit("playbackUpdate", data);
+        });
+
+
     });
 
     // Let Next.js handle all other routes

@@ -10,9 +10,6 @@ import { useRouter } from "next/navigation";
 import MediaControl from "./MediaControl";
 import { useSocket } from "@/lib/socket/SocketContext";
 
-
-
-
 // Types
 interface Song {
     id: string
@@ -56,6 +53,7 @@ export default function MusicRoomPage() {
     const [participants, setParticipants] = useState<Participant[]>([])
     const [newSongUrl, setNewSongUrl] = useState("")
     const [error, setError] = useState<string | null>(null)
+    const [isCreator, setIsCreator] = useState(false)
     const [loading, setLoading] = useState({
         songs: false,
         participants: false,
@@ -71,6 +69,8 @@ export default function MusicRoomPage() {
         const storedParticipantData = localStorage.getItem('participantData')
         if (!session.data?.user && !storedParticipantData) {
             router.push(`/room/${roomId}/join`)
+        } if (session.data?.user) {
+            setIsCreator(true)
         }
     }, [session]);
 
@@ -148,6 +148,31 @@ export default function MusicRoomPage() {
             socket.off("participantJoined", handleParticipantJoined);
         };
     }, [socket, roomId, session]);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const handlePlaybackUpdate = (data: any) => {
+            if (data.roomId === roomId && !isCreator && player) {
+                console.log("Received playback update:", data);
+                if (data.state === "pause") {
+                    player.pauseVideo();
+                } else if (data.state === "play") {
+                    player.playVideo();
+                } else if (data.state === "seek") {
+                    player.seekTo(data.currentTime, true);
+                    // Optionally update local state if needed:
+                    // setCurrentTime(data.currentTime);
+                }
+            }
+        };
+
+        socket.on("playbackUpdate", handlePlaybackUpdate);
+        return () => {
+            socket.off("playbackUpdate", handlePlaybackUpdate);
+        };
+    }, [socket, roomId, isCreator, player]);
+
 
     // Fetch songs from API
     const fetchSongs = async () => {
@@ -389,7 +414,7 @@ export default function MusicRoomPage() {
             {/* media control */}
             <div className="fixed bottom-0 left-0 right-0 z-50">
                 {/* Pass the player instance to MediaControl */}
-                <MediaControl player={player} videoDuration={currentSong?.duration || 0} />
+                <MediaControl player={player} videoDuration={currentSong?.duration || 0} isCreator={isCreator} roomId={roomId as string} />
             </div>
         </div>
     )

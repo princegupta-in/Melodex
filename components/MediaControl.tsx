@@ -13,14 +13,18 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
+import { useSocket } from "@/lib/socket/SocketContext";
 
+// Updated props: isCreator and roomId added
 interface MediaControlProps {
     player: any; // YouTube player instance from react-youtube
     videoDuration: number; // Video duration in seconds, from your stream record
-
+    isCreator: boolean; // True if this user is the room creator
+    roomId: string;     // Room ID used for broadcasting playback updates
 }
 
-export default function MediaControl({ player, videoDuration }: MediaControlProps) {
+export default function MediaControl({ player, videoDuration, isCreator, roomId }: MediaControlProps) {
+    const socket = useSocket(); // Get the socket instance
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [volume, setVolume] = useState(75);
@@ -49,15 +53,29 @@ export default function MediaControl({ player, videoDuration }: MediaControlProp
         return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
     };
 
+    // [SYNC] Function to emit playback update if creator
+    const syncPlayback = (state: "play" | "pause" | "seek") => {
+        if (isCreator && socket) {
+            socket.emit("playbackUpdate", {
+                roomId,
+                state,
+                currentTime: player?.getCurrentTime() || currentTime,
+            });
+        }
+    };
+
     // Toggle play/pause using the passed player instance
     const togglePlayPause = () => {
         if (!player) return;
         if (isPlaying) {
             player.pauseVideo();
+            setIsPlaying(false);
+            if (isCreator) syncPlayback("pause");
         } else {
             player.playVideo();
+            setIsPlaying(true);
+            if (isCreator) syncPlayback("play");
         }
-        setIsPlaying(!isPlaying);
     };
 
     // When user seeks, update currentTime and call player.seekTo
@@ -66,6 +84,9 @@ export default function MediaControl({ player, videoDuration }: MediaControlProp
         setCurrentTime(newTime);
         if (player) {
             player.seekTo(newTime, true);
+        }
+        if (isCreator) {
+            syncPlayback("seek");
         }
     };
 
@@ -127,10 +148,7 @@ export default function MediaControl({ player, videoDuration }: MediaControlProp
                 <div className="flex items-center justify-center">
                     <div className="flex items-center gap-4">
                         {/* Previous track button */}
-                        <button
-                            className="p-2 rounded-full hover:bg-muted transition-colors"
-                            aria-label="Previous track"
-                        >
+                        <button className="p-2 rounded-full hover:bg-muted transition-colors" aria-label="Previous track">
                             <Rewind className="h-5 w-5" />
                         </button>
 
@@ -140,18 +158,11 @@ export default function MediaControl({ player, videoDuration }: MediaControlProp
                             onClick={togglePlayPause}
                             aria-label={isPlaying ? "Pause" : "Play"}
                         >
-                            {isPlaying ? (
-                                <Pause className="h-5 w-5" />
-                            ) : (
-                                <Play className="h-5 w-5" />
-                            )}
+                            {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                         </button>
 
                         {/* Next track button */}
-                        <button
-                            className="p-2 rounded-full hover:bg-muted transition-colors"
-                            aria-label="Next track"
-                        >
+                        <button className="p-2 rounded-full hover:bg-muted transition-colors" aria-label="Next track">
                             <FastForward className="h-5 w-5" />
                         </button>
                     </div>
@@ -176,13 +187,10 @@ export default function MediaControl({ player, videoDuration }: MediaControlProp
                             >
                                 {getVolumeIcon()}
                             </button>
-
                             <div
                                 className={cn(
                                     "transition-all duration-200 ease-in-out pl-2",
-                                    showVolumeSlider
-                                        ? "opacity-100 w-24"
-                                        : "opacity-0 w-0 pointer-events-none"
+                                    showVolumeSlider ? "opacity-100 w-24" : "opacity-0 w-0 pointer-events-none"
                                 )}
                             >
                                 <Slider

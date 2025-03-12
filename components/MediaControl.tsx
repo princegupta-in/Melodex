@@ -54,12 +54,12 @@ export default function MediaControl({ player, videoDuration, isCreator, roomId 
     };
 
     // [SYNC] Function to emit playback update if creator
-    const syncPlayback = (state: "play" | "pause" | "seek") => {
+    const syncPlayback = (state: "play" | "pause" | "seek", newTime?: number) => {
         if (isCreator && socket) {
             socket.emit("playbackUpdate", {
                 roomId,
                 state,
-                currentTime: player?.getCurrentTime() || currentTime,
+                currentTime: newTime !== undefined ? newTime : player?.getCurrentTime() || currentTime,
             });
         }
     };
@@ -86,7 +86,7 @@ export default function MediaControl({ player, videoDuration, isCreator, roomId 
             player.seekTo(newTime, true);
         }
         if (isCreator) {
-            syncPlayback("seek");
+            syncPlayback("seek", newTime);
         }
     };
 

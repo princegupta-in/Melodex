@@ -275,6 +275,16 @@ export default function MusicRoomPage() {
             setCurrentSong(null);
         }
     };
+    const handlePlayerStateChange = (event: any) => {
+        // Player states: -1 (unstarted), 0 (ended), 1 (playing), 2 (paused), etc.
+        if (event.data === 1) { // Playing
+            setPlaying(true);
+        } else if (event.data === 2) { // Paused
+            setPlaying(false);
+        }
+        // Optionally, update current time if needed:
+        // setCurrentTime(player.getCurrentTime());
+    };
 
     return (
 
@@ -303,6 +313,7 @@ export default function MusicRoomPage() {
                                 }}
                                 onEnd={handleSongEnd}
                                 onReady={(e) => setPlayer(e.target)}
+                                onStateChange={handlePlayerStateChange}  // <--- Added this line
                             />
                         )}
                         <div className="pl-2 flex flex-col h-full pt-4">
@@ -415,7 +426,7 @@ export default function MusicRoomPage() {
             {/* media control */}
             <div className="fixed bottom-0 left-0 right-0 z-50">
                 {/* Pass the player instance to MediaControl */}
-                <MediaControl player={player} videoDuration={currentSong?.duration || 0} isCreator={isCreator} roomId={roomId as string} />
+                <MediaControl player={player} videoDuration={currentSong?.duration || 0} isCreator={isCreator} roomId={roomId as string} playing={playing} />
             </div>
         </div>
     )

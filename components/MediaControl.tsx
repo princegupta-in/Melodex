@@ -21,9 +21,10 @@ interface MediaControlProps {
     videoDuration: number; // Video duration in seconds, from your stream record
     isCreator: boolean; // True if this user is the room creator
     roomId: string;     // Room ID used for broadcasting playback updates
+    playing: boolean;  // new prop for playback state from parent
 }
 
-export default function MediaControl({ player, videoDuration, isCreator, roomId }: MediaControlProps) {
+export default function MediaControl({ player, videoDuration, isCreator, roomId, playing }: MediaControlProps) {
     const socket = useSocket(); // Get the socket instance
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -64,6 +65,11 @@ export default function MediaControl({ player, videoDuration, isCreator, roomId 
         }
     };
 
+    useEffect(() => {
+        if (playing) {
+            setIsPlaying(true)
+        }
+    }, [playing])
     // Toggle play/pause using the passed player instance
     const togglePlayPause = () => {
         if (!player) return;

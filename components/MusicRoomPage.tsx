@@ -115,6 +115,7 @@ export default function MusicRoomPage() {
                 setSongQueue(prev => {
                     return [...prev, data.song.stream]
                 });
+                setCurrentSong((prev) => prev ?? data.song.stream);
             }
         };
 

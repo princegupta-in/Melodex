@@ -5,7 +5,7 @@ import Link from "next/link"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { Music } from "lucide-react"
+import { Headphones } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -48,8 +48,8 @@ export default function SignIn() {
       <Card className="w-full max-w-md border-primary/10 bg-background/95 shadow-lg backdrop-blur">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-2">
-            <div className="rounded-full bg-primary/10 p-2">
-              <Music className="h-6 w-6 text-primary" />
+            <div className="rounded-full bg-primary/10 p-3">
+              <Headphones className="h-6 w-6 text-primary" />
             </div>
           </div>
           <CardTitle className="text-2xl font-bold text-center">Sign In</CardTitle>
@@ -139,7 +139,7 @@ export default function SignIn() {
         <CardFooter className="flex flex-col space-y-2">
           <div className="text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <Link href="#" className="text-primary underline-offset-4 hover:underline">
+            <Link href="/sign-up" className="text-primary underline-offset-4 hover:underline">
               Sign up
             </Link>
           </div>

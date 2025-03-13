@@ -14,13 +14,17 @@ datasource db {
 }
 
 model User {
-  id           String            @id @default(uuid())
-  email        String            @unique
-  provider     Providers
-  streams      Stream[]
-  upvotes      Upvote[]
-  participants RoomParticipant[]
-  createdRooms Room[]
+  id               String            @id @default(uuid())
+  email            String            
+  provider         Providers
+  streams          Stream[]
+  upvotes          Upvote[]
+  participants     RoomParticipant[]
+  createdRooms     Room[]
+  username         String? //name
+  password         String? //required for manual signups
+  isVerified       Boolean           @default(false)
+  verificationCode String?
 }
 
 model Stream {
@@ -56,6 +60,7 @@ model Upvote {
 
 enum Providers {
   Google
+  Melodex
 }
 
 enum StreamType {

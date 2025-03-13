@@ -263,6 +263,7 @@ export default function MusicRoomPage() {
         }
     }
     const handleSongEnd = () => {
+        // console.log("Current song ended!🤘🤘");
         // When current song finishes, remove it and set the next song.
         if (songQueue.length > 0) {
             const nextSong = songQueue[0];
@@ -426,7 +427,7 @@ export default function MusicRoomPage() {
             {/* media control */}
             <div className="fixed bottom-0 left-0 right-0 z-50">
                 {/* Pass the player instance to MediaControl */}
-                <MediaControl player={player} videoDuration={currentSong?.duration || 0} isCreator={isCreator} roomId={roomId as string} playing={playing} />
+                <MediaControl player={player} videoDuration={currentSong?.duration || 0} isCreator={isCreator} roomId={roomId as string} playing={playing} videoId={currentSong?.extractedId || ""} />
             </div>
         </div>
     )

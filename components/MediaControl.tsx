@@ -22,10 +22,11 @@ interface MediaControlProps {
     isCreator: boolean; // True if this user is the room creator
     roomId: string;     // Room ID used for broadcasting playback updates
     playing: boolean;  // new prop for playback state from parent
+    videoId: string;    // NEW: current video id, used to reapply mute/volume on video change
 }
 
-export default function MediaControl({ player, videoDuration, isCreator, roomId, playing }: MediaControlProps) {
-    const socket = useSocket(); // Get the socket instance
+export default function MediaControl({ player, videoDuration, isCreator, roomId, playing, videoId }: MediaControlProps) {
+    const socket = useSocket();
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [volume, setVolume] = useState(75);
@@ -130,6 +131,20 @@ export default function MediaControl({ player, videoDuration, isCreator, roomId,
         if (volume < 66) return <Volume1 className="h-5 w-5" />;
         return <Volume2 className="h-5 w-5" />;
     };
+
+    // NEW EFFECT: Reapply mute/volume when videoId changes (i.e. new song)
+    useEffect(() => {
+        if (player) {
+            setTimeout(() => {
+                if (isMuted) {
+                    player.mute();
+                } else {
+                    player.unMute();
+                }
+                player.setVolume(volume);
+            }, 300);
+        }
+    }, [player, videoId, isMuted, volume]);
 
     return (
         <div className="w-full mx-auto px-4 pt-1 pb-0.5 bg-background shadow-sm border">

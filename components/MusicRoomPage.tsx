@@ -136,10 +136,18 @@ export default function MusicRoomPage() {
             }
         };
 
+        const handleCurrentSongChanged = (data: any) => {
+            if (data.roomId === roomId) {
+                console.log("Socket event - currentSongChanged:", data);
+                setCurrentSong(data.currentSong);
+            }
+        };
+
         // Register socket event listeners
         socket.on("songAdded", handleSongAdded);
         socket.on("voteUpdated", handleVoteUpdated);
         socket.on("participantJoined", handleParticipantJoined);
+        socket.on("currentSongChanged", handleCurrentSongChanged);
 
         // Cleanup function to remove listeners on unmount or dependency change
         return () => {
@@ -147,6 +155,7 @@ export default function MusicRoomPage() {
             socket.off("songAdded", handleSongAdded);
             socket.off("voteUpdated", handleVoteUpdated);
             socket.off("participantJoined", handleParticipantJoined);
+            socket.off("currentSongChanged", handleCurrentSongChanged);
         };
     }, [socket, roomId, session]);
 
@@ -285,6 +294,19 @@ export default function MusicRoomPage() {
         }
         // Optionally, update current time if needed:
         // setCurrentTime(player.getCurrentTime());
+    };
+
+    const handleForwardSong = () => {
+        if (songQueue.length > 0) {
+            const nextSong = songQueue[0];
+            setCurrentSong(nextSong);
+            setSongQueue(songQueue.slice(1));
+            // Emit a socket event to update all clients
+            socket?.emit("currentSongChanged", { roomId, currentSong: nextSong });
+        } else {
+            // if no song left,can set currentSong to null or do nothing
+            setCurrentSong(null);
+        }
     };
 
     return (
@@ -427,7 +449,7 @@ export default function MusicRoomPage() {
             {/* media control */}
             <div className="fixed bottom-0 left-0 right-0 z-50">
                 {/* Pass the player instance to MediaControl */}
-                <MediaControl player={player} videoDuration={currentSong?.duration || 0} isCreator={isCreator} roomId={roomId as string} playing={playing} videoId={currentSong?.extractedId || ""} />
+                <MediaControl player={player} videoDuration={currentSong?.duration || 0} isCreator={isCreator} roomId={roomId as string} playing={playing} videoId={currentSong?.extractedId || ""} onForwardSong={handleForwardSong} />
             </div>
         </div>
     )

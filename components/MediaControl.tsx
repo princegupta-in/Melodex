@@ -23,9 +23,10 @@ interface MediaControlProps {
     roomId: string;     // Room ID used for broadcasting playback updates
     playing: boolean;  // new prop for playback state from parent
     videoId: string;    // NEW: current video id, used to reapply mute/volume on video change
+    onForwardSong: () => void;
 }
 
-export default function MediaControl({ player, videoDuration, isCreator, roomId, playing, videoId }: MediaControlProps) {
+export default function MediaControl({ player, videoDuration, isCreator, roomId, playing, videoId, onForwardSong }: MediaControlProps) {
     const socket = useSocket();
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -184,9 +185,15 @@ export default function MediaControl({ player, videoDuration, isCreator, roomId,
 
 
                         {/* Next track button */}
-                        <button className="p-2 rounded-full hover:bg-muted transition-colors" aria-label="Next track">
-                            <FastForward className="h-5 w-5" />
-                        </button>
+                        {isCreator && (
+                            <button
+                                onClick={onForwardSong}
+                                className="p-2 rounded-full hover:bg-muted transition-colors"
+                                aria-label="Next track"
+                            >
+                                <FastForward className="h-5 w-5" />
+                            </button>
+                        )}
                     </div>
 
                     {/* Volume control */}

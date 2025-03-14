@@ -114,16 +114,27 @@ export default function MediaControl({ player, videoDuration, isCreator, roomId,
     const toggleMute = () => {
         if (!player) return;
         if (isMuted) {
+            // Unmute locally
             setIsMuted(false);
             setVolume(previousVolume.current);
             player.setVolume(previousVolume.current);
+            // If creator, broadcast unmute event to all participants
+            if (isCreator && socket) {
+                socket.emit("muteUpdate", { roomId, mute: false });
+            }
         } else {
+            // Mute locally
             previousVolume.current = volume;
             setIsMuted(true);
             setVolume(0);
             player.setVolume(0);
+            // If creator, broadcast mute event to all participants
+            if (isCreator && socket) {
+                socket.emit("muteUpdate", { roomId, mute: true });
+            }
         }
     };
+
 
     // Get volume icon based on volume level
     const getVolumeIcon = () => {
@@ -146,6 +157,32 @@ export default function MediaControl({ player, videoDuration, isCreator, roomId,
             }, 300);
         }
     }, [player, videoId, isMuted, volume]);
+
+    useEffect(() => {
+        if (!socket || isCreator || !player) return;
+
+        const handleMuteUpdate = (data: any) => {
+            if (data.roomId === roomId) {
+                console.log("Received mute update on guest:", data);
+                // Update the UI state for mute
+                setIsMuted(data.mute);
+                // Apply the mute change to the player as well
+                if (data.mute) {
+                    player.mute();
+                    player.setVolume(0);
+                } else {
+                    player.unMute();
+                    player.setVolume(volume);
+                }
+            }
+        };
+
+        socket.on("muteUpdate", handleMuteUpdate);
+        return () => {
+            socket.off("muteUpdate", handleMuteUpdate);
+        };
+    }, [socket, roomId, isCreator, player, volume]);
+
 
     return (
         <div className="w-full mx-auto px-4 pt-1 pb-0.5 bg-background shadow-sm border">

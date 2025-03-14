@@ -177,10 +177,11 @@ export default function MediaControl({ player, videoDuration, isCreator, roomId,
                         <button
                             className="p-3 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
                             onClick={togglePlayPause}
-                            aria-label={isPlaying ? "Pause" : "Play"}
+                            aria-label={playing ? "Pause" : "Play"}
                         >
-                            {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+                            {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                         </button>
+
 
                         {/* Next track button */}
                         <button className="p-2 rounded-full hover:bg-muted transition-colors" aria-label="Next track">

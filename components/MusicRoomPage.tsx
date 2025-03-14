@@ -158,12 +158,12 @@ export default function MusicRoomPage() {
                 console.log("Received playback update:", data);
                 if (data.state === "pause") {
                     player.pauseVideo();
+                    setPlaying(false); // Update guest UI state to "paused"
                 } else if (data.state === "play") {
                     player.playVideo();
+                    setPlaying(true); // Update guest UI state to "playing"
                 } else if (data.state === "seek") {
                     player.seekTo(data.currentTime, true);
-                    // Optionally update local state if needed:
-                    // setCurrentTime(data.currentTime);
                 }
             }
         };

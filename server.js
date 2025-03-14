@@ -61,6 +61,10 @@ app.prepare().then(() => {
             io.to(data.roomId).emit("playbackUpdate", data);
         });
 
+        socket.on("currentSongChanged", (data) => {
+            console.log("Received currentSongChanged event from", socket.id, ":", data);
+            io.to(data.roomId).emit("currentSongChanged", data);
+        });
 
     });
 

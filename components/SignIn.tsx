@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { Headphones } from "lucide-react"
+import { signIn } from "next-auth/react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,32 +16,49 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 // Form validation schema
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
-  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 })
 
 export default function SignIn() {
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // Initialize form with react-hook-form and zod validation
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
-      name: "",
       password: "",
     },
   })
 
-  // Form submission handler
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  // Form submission handler for credentials
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
+    setError(null)
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log(values)
-      setIsLoading(false)
-    }, 1000)
+    // Call NextAuth's signIn with credentials provider
+    const res = await signIn("credentials", {
+      redirect: false, // Prevent automatic redirection
+      email: values.email,
+      password: values.password,
+    })
+
+    setIsLoading(false)
+
+    if (res?.error) {
+      setError(res.error)
+    } else {
+      // Successful sign in; redirect or update UI accordingly
+      window.location.href = "/"
+    }
+  }
+
+  // Handler for Google sign in
+  async function handleGoogleSignIn() {
+    setIsLoading(true)
+    await signIn("google", { callbackUrl: "/" })
+    setIsLoading(false)
   }
 
   return (
@@ -67,21 +85,7 @@ export default function SignIn() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="your.email@example.com" type="email" autoComplete="email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Your name" autoComplete="name" {...field} />
+                      <Input placeholder="prince@gmail.com" type="email" autoComplete="email" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -102,6 +106,7 @@ export default function SignIn() {
                 )}
               />
 
+              {error && <p className="text-sm text-red-500">{error}</p>}
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
@@ -117,7 +122,7 @@ export default function SignIn() {
             </div>
           </div>
 
-          <Button variant="outline" type="button" className="w-full" disabled={isLoading}>
+          <Button variant="outline" type="button" className="w-full" disabled={isLoading} onClick={handleGoogleSignIn}>
             <svg
               className="mr-2 h-4 w-4"
               aria-hidden="true"
@@ -158,4 +163,3 @@ export default function SignIn() {
     </div>
   )
 }
-

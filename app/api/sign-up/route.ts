@@ -25,16 +25,15 @@ export async function POST(request: Request) {
         const { username, email, password } = result.data;
 
         // Check if username is already taken
-        const existingUser = await prisma.user.findFirst({
+        const existingUser = await prisma.user.findUnique({
             where: {
                 email: email,
-                isVerified: true,
             },
         });
         // console.log("😶‍🌫️", existingUser)
         if (existingUser) {
             return NextResponse.json(
-                { error: "Username already exists" },
+                { error: "Email already exists" },
                 { status: 400 }
             );
         }
@@ -46,7 +45,7 @@ export async function POST(request: Request) {
         const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
 
         // Create the new user in the database
-        const newUser = await prisma.user.create({
+        const newUser = await prisma.tempUser.create({
             data: {
                 username,
                 email,

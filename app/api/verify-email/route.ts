@@ -22,7 +22,7 @@ export async function POST(request: Request) {
         const { email, verificationCode } = parsed.data;
 
         // Find a user with the provided email, verificationCode, and not verified yet
-        const user = await prisma.user.findFirst({
+        const tempUser = await prisma.tempUser.findFirst({
             where: {
                 email,
                 verificationCode,
@@ -30,24 +30,26 @@ export async function POST(request: Request) {
             },
         });
 
-        if (!user) {
+        if (!tempUser) {
             return NextResponse.json(
                 { error: "Invalid verification code or email" },
                 { status: 400 }
             );
         }
 
-        // Update the user to mark as verified and optionally clear the verification code
-        const updatedUser = await prisma.user.update({
-            where: { id: user.id },
+        // creating the newUser in permanent user table
+        const user = await prisma.user.create({
             data: {
-                isVerified: true,
-                verificationCode: null,
+                id: tempUser.id,
+                email: tempUser.email,
+                provider: tempUser.provider,
+                username: tempUser.username,
+                password: tempUser.password,
             },
         });
 
         return NextResponse.json(
-            { message: "Email verified successfully!", user: updatedUser },
+            { message: "Email verified successfully!", user },
             { status: 200 }
         );
     } catch (error: any) {

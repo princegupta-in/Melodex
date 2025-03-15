@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import axios from "axios"
-import { ThumbsUp } from "lucide-react"
+import { ChevronUpSquare } from "lucide-react"
 import { useParams } from 'next/navigation';
 import YouTube from 'react-youtube';
 import { useSession } from "next-auth/react";
@@ -326,6 +326,19 @@ export default function MusicRoomPage() {
         }
     };
 
+    const hasUpvoted = (song: Song) => {
+        if (session.data?.user) {
+            return song.upvotes.some(upvote => upvote.userId === session.data.user.id);
+        } else {
+            const storedParticipantData = localStorage.getItem('participantData');
+            if (storedParticipantData) {
+                const participantData = JSON.parse(storedParticipantData);
+                return song.upvotes.some(upvote => upvote.participantId === participantData.id);
+            }
+        }
+        return false;
+    };
+
     return (
 
         <div>
@@ -385,9 +398,9 @@ export default function MusicRoomPage() {
                                         <div className="flex items-center ml-4">
                                             <button
                                                 onClick={() => handleUpvote(song.id)}
-                                                className="flex items-center gap-1 px-2 py-1 bg-blue-100 hover:bg-blue-200 rounded-md transition-colors"
+                                                className={`flex items-center gap-1 px-2 py-1 rounded-md transition-colors ${hasUpvoted(song) ? 'bg-blue-500 text-white' : 'bg-blue-100 hover:bg-blue-200'}`}
                                             >
-                                                <ThumbsUp className="w-4 h-4" />
+                                                <ChevronUpSquare className="w-4 h-4" />
                                                 <span>{song.upvotes.length}</span>
                                             </button>
                                         </div>

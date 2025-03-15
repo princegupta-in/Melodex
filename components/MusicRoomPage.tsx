@@ -62,7 +62,7 @@ export default function MusicRoomPage() {
     // State for YouTube player controls
     const [player, setPlayer] = useState<any>(null);
     const [playing, setPlaying] = useState(false);
-    const [volume, setVolume] = useState(50);
+    const [syncTime, setSyncTime] = useState(0);
 
     // Check if the user is joined (for guests, check localStorage; authenticated users are auto-joined)
     useEffect(() => {
@@ -183,6 +183,23 @@ export default function MusicRoomPage() {
         };
     }, [socket, roomId, isCreator, player]);
 
+    useEffect(() => {
+        if (!socket) return;
+
+        const handlePlaybackUpdate = (data: any) => {
+            if (data.roomId === roomId && !isCreator) {
+                setSyncTime(data.currentTime);
+                if (player) {
+                    player.seekTo(data.currentTime, true);
+                }
+            }
+        };
+
+        socket.on("playbackUpdate", handlePlaybackUpdate);
+        return () => {
+            socket.off("playbackUpdate", handlePlaybackUpdate);
+        };
+    }, [socket, roomId, isCreator, player]);
 
     // Fetch songs from API
     const fetchSongs = async () => {
@@ -449,7 +466,7 @@ export default function MusicRoomPage() {
             {/* media control */}
             <div className="fixed bottom-0 left-0 right-0 z-50">
                 {/* Pass the player instance to MediaControl */}
-                <MediaControl player={player} videoDuration={currentSong?.duration || 0} isCreator={isCreator} roomId={roomId as string} playing={playing} videoId={currentSong?.extractedId || ""} onForwardSong={handleForwardSong} />
+                <MediaControl player={player} videoDuration={currentSong?.duration || 0} isCreator={isCreator} roomId={roomId as string} playing={playing} videoId={currentSong?.extractedId || ""} onForwardSong={handleForwardSong} syncTime={syncTime} />
             </div>
         </div>
     )

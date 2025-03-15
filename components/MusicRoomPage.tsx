@@ -346,30 +346,33 @@ export default function MusicRoomPage() {
                 {/* Left Column - Player and Queue */}
                 <div className="w-1/2 flex flex-col p-4 border-r border-gray-200">
                     {/* YouTube Player */}
-                    <div className="w-full h-1/3 mb-4 rounded-md overflow-hidden flex items-center border-2 px-2">
+                    <div className="relative w-full h-1/3 mb-4 rounded-md overflow-hidden flex items-center border-2 px-2">
                         {currentSong && (
                             <YouTube
                                 videoId={currentSong.extractedId}
                                 opts={{
                                     height: "100%",
-                                    width: '100%',
+                                    width: "100%",
                                     playerVars: {
                                         autoplay: 1,
                                         controls: 0,
-                                        modestbranding: 1,          //remove the YouTube logo
-                                        rel: 0,                     //disable related videos at the end
+                                        modestbranding: 1,
+                                        rel: 0,
                                         fs: 1,
                                         iv_load_policy: 3,
-                                        // loop:0,
-                                        // playlist: currentSong.extractedId,
                                     },
                                 }}
                                 onEnd={handleSongEnd}
                                 onReady={(e) => setPlayer(e.target)}
-                                onStateChange={handlePlayerStateChange}  // <--- Added this line
+                                onStateChange={handlePlayerStateChange}
                             />
                         )}
-                        <div className="pl-2 flex flex-col h-full pt-4">
+                        {/* Transparent overlay div to block direct interaction */}
+                        <div
+                            className="absolute inset-0 z-10"
+                            style={{ background: "rgba(0,0,0,0)", pointerEvents: "all" }}
+                        />
+                        <div className="pl-2 flex flex-col h-full pt-4 z-20">
                             <h2 className="text-xl font-bold mb-4">Now Playing</h2>
                             <p className="text-muted-foreground">{currentSong?.title || "No song playing"}</p>
                         </div>

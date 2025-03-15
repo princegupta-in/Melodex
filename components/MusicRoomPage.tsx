@@ -9,6 +9,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import MediaControl from "./MediaControl";
 import { useSocket } from "@/lib/socket/SocketContext";
+import { toast } from "sonner";
 
 // Types
 interface Song {
@@ -339,6 +340,18 @@ export default function MusicRoomPage() {
         return false;
     };
 
+    const handleInviteFriends = async () => {
+        const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/room/${roomId}/join`;
+        try {
+            await navigator.clipboard.writeText(inviteUrl);
+            toast.success("Invite link copied to clipboard!");
+        } catch (error) {
+            console.error("Failed to copy invite link:", error);
+            toast.error("Failed to copy the invite link. Please try again.");
+        }
+    };
+
+
     return (
 
         <div>
@@ -380,7 +393,7 @@ export default function MusicRoomPage() {
 
                     {/* Song Queue */}
                     <div className="flex-1 overflow-y-auto border-2 px-4 rounded-md">
-                        <h2 className="text-xl font-bold mb-4 text-white pt-1">Up Next</h2>
+                        <h2 className="text-xl font-bold mb-4 text-black pt-4">Up Next</h2>
 
                         {error && <p className="text-red-500 mb-4">{error}</p>}
 
@@ -445,13 +458,24 @@ export default function MusicRoomPage() {
                     </div>
 
                     {/* Participants Section */}
-                    <div className="flex-1 overflow-y-auto border-2 px-4 rounded-md">
-                        <h2 className="text-xl font-bold mb-4 text-white pt-1">Room Participants</h2>
-
+                    <div className="flex-1 overflow-y-auto border-2 px-4 py-4 rounded-md ">
+                        {/* Invite Friends Button (only for creator) */}
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-xl font-bold text">Room Participants</h2>
+                            {isCreator && (
+                                <button
+                                    onClick={handleInviteFriends}
+                                    className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+                                    aria-label="Invite Friends"
+                                >
+                                    Invite Friends
+                                </button>
+                            )}
+                        </div>
                         {loading.participants ? (
                             <p>Loading participants...</p>
                         ) : (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto ">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                 {participants.map((participant) => (
                                     <div key={participant.id} className="flex items-center p-3 bg-card rounded-md shadow-sm">
                                         <div className="w-10 h-10 rounded-full overflow-hidden mr-3">
@@ -470,13 +494,13 @@ export default function MusicRoomPage() {
                                         <span className="truncate">{participant.name}</span>
                                     </div>
                                 ))}
-
                                 {participants.length === 0 && !loading.participants && (
                                     <p className="text-muted-foreground col-span-3">No participants yet.</p>
                                 )}
                             </div>
                         )}
                     </div>
+
                 </div>
             </div>
             {/* media control */}

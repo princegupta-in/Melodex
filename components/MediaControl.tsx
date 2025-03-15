@@ -24,9 +24,10 @@ interface MediaControlProps {
     playing: boolean;  // new prop for playback state from parent
     videoId: string;    // NEW: current video id, used to reapply mute/volume on video change
     onForwardSong: () => void;
+    syncTime: number;
 }
 
-export default function MediaControl({ player, videoDuration, isCreator, roomId, playing, videoId, onForwardSong }: MediaControlProps) {
+export default function MediaControl({ player, videoDuration, isCreator, roomId, playing, videoId, onForwardSong, syncTime }: MediaControlProps) {
     const socket = useSocket();
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -48,6 +49,23 @@ export default function MediaControl({ player, videoDuration, isCreator, roomId,
             if (interval) clearInterval(interval);
         };
     }, [player, isPlaying]);
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (isCreator && player && socket) {
+            interval = setInterval(() => {
+                const currentTime = player.getCurrentTime();
+                socket.emit("playbackUpdate", {
+                    roomId,
+                    state: "playing",
+                    currentTime,
+                });
+            }, 1000);
+        }
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [isCreator, player, socket, roomId]);
 
     // Format seconds to MM:SS
     const formatTime = (seconds: number) => {
@@ -183,6 +201,11 @@ export default function MediaControl({ player, videoDuration, isCreator, roomId,
         };
     }, [socket, roomId, isCreator, player, volume]);
 
+    useEffect(() => {
+        if (!isCreator && player) {
+            setCurrentTime(syncTime);
+        }
+    }, [syncTime, isCreator, player]);
 
     return (
         <div className="w-full mx-auto px-4 pt-1 pb-0.5 bg-background shadow-sm border">

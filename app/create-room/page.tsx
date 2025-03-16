@@ -23,15 +23,16 @@ export default function CreateRoomPage() {
 
 
     return (
-        <div className="relative h-full w-full bg-slate-950"><div className="absolute bottom-0 left-[-20%] right-0 top-[-10%] h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle_farthest-side,rgba(255,0,182,.15),rgba(255,255,255,0))]"></div><div className="absolute bottom-0 right-[-20%] top-[-10%] h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle_farthest-side,rgba(255,0,182,.15),rgba(255,255,255,0))]"></div>
+        <div className="relative h-full w-full">
+            <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]"><div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_500px_at_50%_200px,#C9EBFF,transparent)]"></div></div>
             <main className="min-h-screen bg-gradient-to-br pt-10  flex flex-col items-center justify-center p-4 relative overflow-hidden">
 
-                <div className="min-w-full mt-12 mb-8 text-center bg-white/10 backdrop-blur-sm p-8 rounded-lg flex flex-col items-center">
-                    <p className="text-white text-lg max-w-2xl">
+                <div className="min-w-full mt-12 mb-8 text-center bg-black/10 backdrop-blur-sm p-8 rounded-lg flex flex-col items-center py-24">
+                    <p className="text-black text-xl max-w-4xl">
                         Melodex is a social media player that lets you share music across limitless people, devices and speakers,
                         whether they're in the same room or halfway across the world.
                     </p>
-                    <p className="text-white text-lg mt-2">Create & share your Melodex Room now:</p>
+                    <p className="text-black text-lg mt-2">Create & share your Melodex Room now:</p>
 
                     {/* Create Form */}
                     <form onSubmit={handleCreateRoom} className="flex items-stretch">

@@ -355,11 +355,12 @@ export default function MusicRoomPage() {
     return (
 
         <div>
+            <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]"><div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_500px_at_50%_200px,#C9EBFF,transparent)]"></div></div>
             <div className="flex h-screen pt-20 pb-16">
                 {/* Left Column - Player and Queue */}
-                <div className="w-1/2 flex flex-col p-4 border-r border-gray-200">
+                <div className="w-1/2 flex flex-col p-4">
                     {/* YouTube Player */}
-                    <div className="relative w-full h-1/3 mb-4 rounded-md overflow-hidden flex items-center border-2 px-2">
+                    <div className="relative w-full h-1/3 mb-4 rounded-md overflow-hidden flex items-center border-2 border-slate-400 px-2">
                         {currentSong && (
                             <YouTube
                                 videoId={currentSong.extractedId}
@@ -392,7 +393,7 @@ export default function MusicRoomPage() {
                     </div>
 
                     {/* Song Queue */}
-                    <div className="flex-1 overflow-y-auto border-2 px-4 rounded-md">
+                    <div className="flex-1 overflow-y-auto border-2 border-slate-400 px-4 rounded-md">
                         <h2 className="text-xl font-bold mb-4 text-black pt-4">Up Next</h2>
 
                         {error && <p className="text-red-500 mb-4">{error}</p>}
@@ -435,15 +436,15 @@ export default function MusicRoomPage() {
                 {/* Right Column - Add Song and Participants */}
                 <div className="w-1/2 flex flex-col p-4">
                     {/* Add Song Section */}
-                    <div className="h-1/3 mb-4 border-2 px-4 py-2 rounded-md">
-                        <h2 className="text-xl font-bold mb-4 text-white">Add a Song</h2>
+                    <div className="h-1/3 mb-4 border-2 border-slate-400 px-4 py-2 rounded-md">
+                        <h2 className="text-xl font-bold mb-4 text-black">Add a Song</h2>
                         <div className="flex gap-2 mb-4">
                             <input
                                 type="text"
                                 value={newSongUrl}
                                 onChange={(e) => setNewSongUrl(e.target.value)}
                                 placeholder="Paste YouTube URL here"
-                                className="flex-1 px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="flex-1 px-3 py-2 border border-input border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-white/55"
                             />
                             <button
                                 onClick={handleAddSong}
@@ -458,7 +459,7 @@ export default function MusicRoomPage() {
                     </div>
 
                     {/* Participants Section */}
-                    <div className="flex-1 overflow-y-auto border-2 px-4 py-4 rounded-md ">
+                    <div className="flex-1 overflow-y-auto border-2 border-slate-400 px-4 py-4 rounded-md ">
                         {/* Invite Friends Button (only for creator) */}
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-xl font-bold text">Room Participants</h2>
@@ -477,8 +478,8 @@ export default function MusicRoomPage() {
                         ) : (
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                 {participants.map((participant) => (
-                                    <div key={participant.id} className="flex items-center p-3 bg-card rounded-md shadow-sm">
-                                        <div className="w-10 h-10 rounded-full overflow-hidden mr-3">
+                                    <div key={participant.id} className="flex items-center p-3 bg-card/40 rounded-md shadow-sm">
+                                        <div className="h-10 w-10 rounded-full overflow-hidden mr-3">
                                             {participant.avatarUrl ? (
                                                 <img
                                                     src={participant.avatarUrl || "/placeholder.svg"}

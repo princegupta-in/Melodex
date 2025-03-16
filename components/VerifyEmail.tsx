@@ -59,7 +59,8 @@ export default function VerifyEmailPage() {
 
     if (isSuccess) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen px-4 bg-gray-50">
+            <div className="flex flex-col items-center justify-center min-h-screen px-4">
+                <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]"><div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_500px_at_50%_200px,#C9EBFF,transparent)]"></div></div>
                 <div className="w-full max-w-md p-8 space-y-8 text-center bg-white rounded-lg shadow-sm">
                     <div className="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center">
                         <svg
@@ -86,7 +87,8 @@ export default function VerifyEmailPage() {
     }
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen px-4 bg-gray-50">
+        <div className="flex flex-col items-center justify-center min-h-screen px-4">
+            <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]"><div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_500px_at_50%_200px,#C9EBFF,transparent)]"></div></div>
             <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-sm">
                 <div className="text-center">
                     <div className="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center">

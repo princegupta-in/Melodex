@@ -25,6 +25,7 @@
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
@@ -52,6 +53,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -65,5 +67,5 @@ body {
   width: 100%;
   /* Optional: If you never want the browser to  at all: */
   overflow: hidden;
+  font-family: var(--font-poppins);
 }
-

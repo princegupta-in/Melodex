@@ -12,10 +12,7 @@ const guestVoteSchema = z.object({
     })
 });
 
-export async function POST(
-    request: Request,
-    { params }: { params: { roomId: string; streamId: string } }
-) {
+export async function POST(request: Request, { params }: { params: Promise<{ roomId: string, streamId: string }> }): Promise<NextResponse> {
     // Attempt to get session for authenticated users.
     const session = await getServerSession(authOptions);
     const { roomId, streamId } = await params

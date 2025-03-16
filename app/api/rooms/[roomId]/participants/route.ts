@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/connectToDatabase';
 
-export async function GET(
-    request: Request,
-    { params }: { params: { roomId: string } }
-) {
+export async function GET(request: Request, { params }: { params: Promise<{ roomId: string }> }): Promise<NextResponse> {
     const { roomId } = await params;
     try {
         const participants = await prisma.roomParticipant.findMany({

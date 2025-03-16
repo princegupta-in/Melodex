@@ -8,9 +8,7 @@ import { z } from 'zod';
 const joinSchema = z.object({
     name: z.string().min(1, 'Name is required'),
 });
-
-export async function POST(request: Request, { params }: { params: { roomId: string } }) {
-
+export async function POST(request: Request, { params }: { params: Promise<{ roomId: string }> }): Promise<NextResponse<{ message: any }>> {
     const { roomId } = await params;
     try {
         const body = await request.json();
@@ -25,6 +23,6 @@ export async function POST(request: Request, { params }: { params: { roomId: str
         });
         return NextResponse.json({ message: `welcome ${name}!!`, participant }, { status: 200 });
     } catch (error: any) {
-        return NextResponse.json({ error: error.errors || error.message }, { status: 400 });
+        return NextResponse.json({ message: error.errors || error.message }, { status: 400 });
     }
 }

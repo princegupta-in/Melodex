@@ -73,7 +73,7 @@ function parseISO8601Duration(duration: string): number {
 
 
 // API Route
-export async function POST(req: NextRequest, { params }: { params: { roomId: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ roomId: string }> }): Promise<NextResponse> {
     const session = await getServerSession(authOptions);
     const { roomId } = await params;
 
@@ -121,23 +121,7 @@ export async function POST(req: NextRequest, { params }: { params: { roomId: str
     }
 }
 
-//get all streams
-// export async function GET(req: NextRequest) {
-//     const creatorId = req.nextUrl.searchParams.get('creatorId')
-//     try {
-//         const streams = await prisma.stream.findMany({
-//             where: {
-//                 userId: creatorId ?? "",
-//             },
-//         });
-//         return NextResponse.json({ streams }, { status: 200 });
-//     } catch (error) {
-//         console.error("❌", error);
-//         return NextResponse.json({ message: "An error occurred" }, { status: 500 });
-//     }
-// }
-
-export async function GET(request: Request, { params }: { params: { roomId: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ roomId: string }> }): Promise<NextResponse> {
     try {
         const { roomId } = await params;
         const streams = await prisma.stream.findMany({

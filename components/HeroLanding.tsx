@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import { Pacifico } from "next/font/google"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Music2, Users, Radio } from "lucide-react"
+import { Music2, Users, Radio, ArrowRight } from "lucide-react"
 
 const pacifico = Pacifico({
   subsets: ["latin"],
@@ -93,54 +93,55 @@ export default function HeroLanding() {
   }
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-[#030303]">
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/[0.15] via-transparent to-pink-500/[0.15] blur-3xl" />
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden pt-20">
+      <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]"><div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_500px_at_50%_200px,#C9EBFF,transparent)]"></div></div>
+      <div className="absolute inset-0 bg-gradient-to-br via-transparent blur-3xl" />
 
       <div className="absolute inset-0 overflow-hidden">
-        <MusicShape
+        {/* <MusicShape
           delay={0.3}
           width={600}
           height={140}
           rotate={12}
           gradient="from-purple-500/[0.15]"
           className="left-[-10%] md:left-[-5%] top-[15%] md:top-[20%]"
-        />
+        /> */}
 
-        <MusicShape
+        {/* <MusicShape
           delay={0.5}
           width={500}
           height={120}
           rotate={-15}
           gradient="from-pink-500/[0.15]"
           className="right-[-5%] md:right-[0%] top-[70%] md:top-[75%]"
-        />
+        /> */}
 
-        <MusicShape
+        {/* <MusicShape
           delay={0.4}
           width={300}
           height={80}
           rotate={-8}
           gradient="from-blue-500/[0.15]"
           className="left-[5%] md:left-[10%] bottom-[5%] md:bottom-[10%]"
-        />
+        /> */}
 
-        <MusicShape
+        {/* <MusicShape
           delay={0.6}
           width={200}
           height={60}
           rotate={20}
           gradient="from-green-500/[0.15]"
           className="right-[15%] md:right-[20%] top-[10%] md:top-[15%]"
-        />
+        /> */}
 
-        <MusicShape
+        {/* <MusicShape
           delay={0.7}
           width={150}
           height={40}
           rotate={-25}
           gradient="from-yellow-500/[0.15]"
           className="left-[20%] md:left-[25%] top-[5%] md:top-[10%]"
-        />
+        /> */}
       </div>
 
       <div className="relative z-10 container mx-auto px-4 md:px-6">
@@ -150,33 +151,41 @@ export default function HeroLanding() {
             variants={fadeUpVariants}
             initial="hidden"
             animate="visible"
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] mb-8 md:mb-12"
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.03] border border-black/[0.3] mb-8 md:mb-12"
           >
-            <Music2 className="w-5 h-5 text-purple-400" />
-            <span className="text-sm text-white/60 tracking-wide">Introducing Melodex</span>
+            <Music2 className="w-5 h-5 text-blue-600" />
+            <span className="text-sm text-black/60 tracking-wide">Introducing Melodex</span>
           </motion.div>
 
           <motion.div custom={1} variants={fadeUpVariants} initial="hidden" animate="visible">
             <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold mb-6 md:mb-8 tracking-tight">
-              <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80">
-              Create. Stream. Connect.
+              <span className="bg-clip-text text-transparent bg-gradient-to-b from-black to-white/80">
+                Create. Stream. Connect.
               </span>
               <br />
               <span
                 className={cn(
-                  "bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-red-500",
+                  "bg-clip-text text-transparent bg-gradient-to-r from-black/80 via-blue-500 to-black/80",
                   pacifico.className,
                 )}
               >
-                Your Music, Everyone’s Stage.
+                Your Music, Everyone’s.
+              </span>
+              <br />
+              <span
+                className={cn(
+                  "bg-clip-text text-transparent bg-gradient-to-r from-black/80 via-blue-500 to-black/80",
+                  pacifico.className,
+                )}
+              >
+                stage
               </span>
             </h1>
           </motion.div>
 
           <motion.div custom={2} variants={fadeUpVariants} initial="hidden" animate="visible">
-            <p className="text-base sm:text-lg md:text-xl text-white/60 mb-8 leading-relaxed font-light tracking-wide max-w-2xl mx-auto px-4">
-              FanTune empowers creators to stream music while letting their audience curate the playlist. Connect,
-              engage, and groove together in real-time!
+            <p className="text-base sm:text-lg md:text-xl text-black/80 mb-8 leading-relaxed font-light tracking-wide max-w-2xl mx-auto px-4">
+              Melodex is a collaborative music hub: create or join rooms, share YouTube tracks, and sync playback with real-time upvotes.
             </p>
           </motion.div>
 
@@ -185,16 +194,16 @@ export default function HeroLanding() {
             variants={fadeUpVariants}
             initial="hidden"
             animate="visible"
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            className="flex flex-col sm:flex-row items-center justify-center "
           >
             <Button
               size="lg"
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+              className="group bg-gradient-to-r from-black to-blue-500 hover:from-black hover:to-blue-600 text-white flex items-center gap-2"
             >
-              Start Streaming
-            </Button>
-            <Button size="lg" variant="outline" className="text-white border-white/20 hover:bg-white/10">
-              Explore Creators
+              Create Your Room
+              <span className="transition-transform duration-300 ease-in-out group-hover:translate-x-2">
+                <ArrowRight />
+              </span>
             </Button>
           </motion.div>
 
@@ -206,25 +215,25 @@ export default function HeroLanding() {
             className="mt-12 flex justify-center space-x-8 md:space-x-12"
           >
             <div className="text-center">
-              <Users className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">10K+</p>
-              <p className="text-sm text-white/60">Active Creators</p>
+              <Users className="w-8 h-8 text-black mx-auto mb-2" />
+              {/* <p className="text-2xl font-bold text-black/60">10K+</p> */}
+              <p className="text-sm text-black/60">Create/Join a Room</p>
             </div>
             <div className="text-center">
-              <Radio className="w-8 h-8 text-pink-400 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">50K+</p>
-              <p className="text-sm text-white/60">Live Streams</p>
+              <Radio className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+              {/* <p className="text-2xl font-bold text-black/60">50K+</p> */}
+              <p className="text-sm text-black/60">Vote & Sync</p>
             </div>
             <div className="text-center">
-              <Music2 className="w-8 h-8 text-red-400 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">1M+</p>
-              <p className="text-sm text-white/60">Songs Played</p>
+              <Music2 className="w-8 h-8 text-black mx-auto mb-2" />
+              {/* <p className="text-2xl font-bold text-black/60">1M+</p> */}
+              <p className="text-sm text-black/60">Add Your Favorite Songs</p>
             </div>
           </motion.div>
         </div>
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-t from-[#030303] via-transparent to-[#030303]/80 pointer-events-none" />
+      <div className="absolute inset-0 pointer-events-none" />
     </div>
   )
 }

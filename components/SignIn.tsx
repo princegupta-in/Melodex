@@ -64,7 +64,7 @@ export default function SignIn() {
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]"><div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_500px_at_50%_200px,#C9EBFF,transparent)]"></div></div>
-      <Card className="w-full max-w-md border-primary/10 bg-background/95 shadow-lg backdrop-blur">
+      <Card className="w-full max-w-md border-primary/10 bg-background/50 shadow-lg backdrop-blur">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-2">
             <div className="rounded-full bg-primary/10 p-3">

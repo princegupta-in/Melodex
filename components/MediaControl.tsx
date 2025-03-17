@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Slider } from "@/components/ui/slider";
 import { useSocket } from "@/lib/socket/SocketContext";
+import { toast } from "sonner";
 
 // Updated props: isCreator and roomId added
 interface MediaControlProps {
@@ -207,6 +208,14 @@ export default function MediaControl({ player, videoDuration, isCreator, roomId,
         }
     }, [syncTime, isCreator, player]);
 
+    const handleBackwardSong = () => {
+        if (isCreator) {
+            toast.error("This feature is not available yet.");
+        } else {
+            toast.error("Only the Room creator can change current songs.");
+        }
+    };
+
     return (
         <div className="w-full mx-auto px-4 pt-1 pb-0.5 bg-white/50 shadow-sm border">
             <div className="space-y-4 relative">
@@ -230,7 +239,7 @@ export default function MediaControl({ player, videoDuration, isCreator, roomId,
                 <div className="flex items-center justify-center">
                     <div className="flex items-center gap-4">
                         {/* Previous track button */}
-                        <button className="p-2 rounded-full hover:bg-muted transition-colors" aria-label="Previous track">
+                        <button onClick={handleBackwardSong} className="p-2 rounded-full hover:bg-muted transition-colors" aria-label="Previous track">
                             <Rewind className="h-5 w-5" />
                         </button>
 
@@ -245,15 +254,13 @@ export default function MediaControl({ player, videoDuration, isCreator, roomId,
 
 
                         {/* Next track button */}
-                        {isCreator && (
-                            <button
-                                onClick={onForwardSong}
-                                className="p-2 rounded-full hover:bg-muted transition-colors"
-                                aria-label="Next track"
-                            >
-                                <FastForward className="h-5 w-5" />
-                            </button>
-                        )}
+                        <button
+                            onClick={onForwardSong}
+                            className="p-2 rounded-full hover:bg-muted transition-colors"
+                            aria-label="Next track"
+                        >
+                            <FastForward className="h-5 w-5" />
+                        </button>
                     </div>
 
                     {/* Volume control */}

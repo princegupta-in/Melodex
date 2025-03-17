@@ -11,7 +11,6 @@ import MediaControl from "./MediaControl";
 import { useSocket } from "@/lib/socket/SocketContext";
 import { toast } from "sonner";
 
-// Types
 interface Song {
     id: string
     title: string
@@ -55,6 +54,7 @@ export default function MusicRoomPage() {
     const [newSongUrl, setNewSongUrl] = useState("")
     const [error, setError] = useState<string | null>(null)
     const [isCreator, setIsCreator] = useState(false)
+    const [roomData, setRoomData] = useState<{ id: string; name: string; creatorId: string; createdAt?: string } | null>(null)
     const [loading, setLoading] = useState({
         songs: false,
         participants: false,
@@ -70,10 +70,33 @@ export default function MusicRoomPage() {
         const storedParticipantData = localStorage.getItem('participantData')
         if (!session.data?.user && !storedParticipantData) {
             router.push(`/room/${roomId}/join`)
-        } if (session.data?.user) {
-            setIsCreator(true)
         }
-    }, [session]);
+    }, [session, roomId, router]);
+
+    // Effect to fetch room details
+    useEffect(() => {
+        if (!roomId) return;
+        axios.get(`/api/rooms/${roomId}`)
+            .then(res => {
+                // Assuming API returns { room: { ... } }
+                setRoomData(res.data.room);
+            })
+            .catch(err => {
+                setError("Failed to load room details");
+            });
+    }, [roomId]);
+
+    // Effect to check if the authenticated user is the room creator
+    useEffect(() => {
+        if (session.data?.user && roomData) {
+            if (session.data.user.id === roomData.creatorId) {
+                setIsCreator(true);
+                router.push(`/room/${roomId}`);
+            } else {
+                setIsCreator(false);
+            }
+        }
+    }, [session, roomData, roomId, router]);
 
     // Fetch songs and participants on component mount
     useEffect(() => {
@@ -88,7 +111,7 @@ export default function MusicRoomPage() {
         // Retrieve stored participant data from localStorage
         const storedParticipantData = (localStorage.getItem("participantData"));
         const participant = storedParticipantData ? JSON.parse(storedParticipantData) : null;
-        console.log("🍭", participant)
+        // console.log("🍭", participant)
 
         if (session.data?.user) {
             socket.emit("joinRoom", roomId);
@@ -315,15 +338,19 @@ export default function MusicRoomPage() {
     };
 
     const handleForwardSong = () => {
-        if (songQueue.length > 0) {
-            const nextSong = songQueue[0];
-            setCurrentSong(nextSong);
-            setSongQueue(songQueue.slice(1));
-            // Emit a socket event to update all clients
-            socket?.emit("currentSongChanged", { roomId, currentSong: nextSong });
+        if (isCreator) {
+            if (songQueue.length > 0) {
+                const nextSong = songQueue[0];
+                setCurrentSong(nextSong);
+                setSongQueue(songQueue.slice(1));
+                // Emit a socket event to update all clients
+                socket?.emit("currentSongChanged", { roomId, currentSong: nextSong });
+            } else {
+                // if no song left,can set currentSong to null or do nothing
+                setCurrentSong(null);
+            }
         } else {
-            // if no song left,can set currentSong to null or do nothing
-            setCurrentSong(null);
+            toast.error("Only the Room creator can change current songs.");
         }
     };
 

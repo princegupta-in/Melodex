@@ -12,7 +12,7 @@ const roomSchema = z.object({
 export async function POST(request: Request) {
   // Get the current session
   const session = await getServerSession(authOptions);
-  console.log(session);
+  console.log("🔥from /api/rooms", session);
 
   if (!session || !session.user) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     //add this creator of room as a participant
     await prisma.roomParticipant.create({
       data: {
-        name: session.user.name!,
+        name: session.user.name || "session.user.username name is not comming here",
         roomId: room.id,
         userId: session.user.id,
         role: "CREATOR"

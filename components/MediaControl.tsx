@@ -208,7 +208,7 @@ export default function MediaControl({ player, videoDuration, isCreator, roomId,
     }, [syncTime, isCreator, player]);
 
     return (
-        <div className="w-full mx-auto px-4 pt-1 pb-0.5 bg-background shadow-sm border">
+        <div className="w-full mx-auto px-4 pt-1 pb-0.5 bg-white/50 shadow-sm border">
             <div className="space-y-4 relative">
                 {/* Seek bar */}
                 <div className="space-y-1">

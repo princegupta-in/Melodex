@@ -5,6 +5,7 @@ import { Pacifico } from "next/font/google"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Music2, Users, Radio, ArrowRight } from "lucide-react"
+import { signIn } from "next-auth/react"
 
 const pacifico = Pacifico({
   subsets: ["latin"],
@@ -197,6 +198,7 @@ export default function HeroLanding() {
             className="flex flex-col sm:flex-row items-center justify-center "
           >
             <Button
+              onClick={() => signIn()}
               size="lg"
               className="group bg-gradient-to-r from-black to-blue-500 hover:from-black hover:to-blue-600 text-white flex items-center gap-2"
             >

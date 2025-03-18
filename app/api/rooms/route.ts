@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     //add this creator of room as a participant
     await prisma.roomParticipant.create({
       data: {
-        name: session.user.name || "session.user.username name is not comming here",
+        name: session.user.name ?? session.user.username!,
         roomId: room.id,
         userId: session.user.id,
         role: "CREATOR"

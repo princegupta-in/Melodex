@@ -28,7 +28,9 @@ export const authOptions: NextAuthOptions = {
                     // Verify the password
                     const isValidPassword = await bcrypt.compare(credentials!.password, user.password!);
                     if (isValidPassword) {
-                        return user;
+                        console.log("🌸🌸", user)
+                        // Any object returned will be saved in `user` property of the JWT
+                        return { ...user, username: user.username ?? undefined };
                     } else {
                         throw new Error("Incorrect Password");
                     }
@@ -39,12 +41,22 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
         async session({ session, token }) {
             session.user.id = token.id as string
-
+            if (token.username) {
+                session.user.username = token.username as string
+            }
             return session
         },
-        async jwt({ token, user }) {
-            if (user) {
-                token.id = user.id
+        async jwt({ token, user, account }) {
+            if (account?.provider === "google") {
+                if (user) {
+                    token.id = user.id
+                }
+            }
+            if (account?.provider === "credentials") {
+                if (user) {
+                    token.id = user.id
+                    token.username = user.username
+                }
             }
             return token
         },

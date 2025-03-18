@@ -108,7 +108,7 @@ export default function SignIn() {
               />
 
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full bg-gradient-to-r from-black to-blue-500 hover:from-black hover:to-blue-600 text-white" disabled={isLoading}>
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
             </form>

@@ -483,7 +483,7 @@ export default function MusicRoomPage() {
                             />
                             <button
                                 onClick={handleAddSong}
-                                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                                className="px-4 py-2 text-primary-foreground rounded-md hover:bg-primary/90 transition-colors bg-gradient-to-r from-black to-blue-500 hover:from-black hover:to-blue-600 text-white"
                             >
                                 Add Song
                             </button>
@@ -501,7 +501,7 @@ export default function MusicRoomPage() {
                             {isCreator && (
                                 <button
                                     onClick={handleInviteFriends}
-                                    className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
+                                    className="px-4 py-2 rounded-md hover:bg-primary/90 transition-colors bg-gradient-to-r from-black to-blue-500 hover:from-black hover:to-blue-600 text-white"
                                     aria-label="Invite Friends"
                                 >
                                     Invite Friends

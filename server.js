@@ -15,7 +15,9 @@ app.prepare().then(() => {
     // Initialize Socket.IO
     const io = new SocketIOServer(httpServer, {
         cors: {
-            origin: "*", // Adjust in production
+            origin: process.env.NODE_ENV === "production"
+                ? ["https://melodex.tech", "https://www.melodex.tech", "https://melodex-two.vercel.app/"]
+                : "*",
             methods: ["GET", "POST"],
             credentials: true,
         },
@@ -29,14 +31,11 @@ app.prepare().then(() => {
             console.log(`🚀 Socket ${socket.id} joined room ${roomId}`);
         });
 
-        // When a client emits "participantJoined" (with full participant data),
-        // broadcast it to everyone else in the room.
+        // When a client emits "participantJoined", broadcasting it to everyone else in the room.
         socket.on("participantJoined", (data) => {
             console.log("👋 participantJoined event received:", data);
             // Broadcasting to everyone in the room except the sender.
             socket.broadcast.to(data.roomId).emit("participantJoined", data);
-            // Alternatively, if you want all clients (including the sender) to get the event, use:
-            // io.to(data.roomId).emit("participantJoined", data);
         });
 
         // Other events:

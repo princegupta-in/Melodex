@@ -413,6 +413,14 @@ export default function MusicRoomPage() {
                             className="absolute inset-0 z-10"
                             style={{ background: "rgba(0,0,0,0)", pointerEvents: "all" }}
                         />
+                        {/* Conditional rendering of the paused message */}
+                        {/* {!playing && (
+                            <div className="absolute inset-0 z-50 bg-gradient-to-r from-black/50 via-blue-200 to-black/50 flex items-center justify-center">
+                                <p className="text-black/80 text-xl font-medium">
+                                    VIDEO PAUSED
+                                </p>
+                            </div>
+                        )} */}
                         <div className="pl-2 flex flex-col h-full pt-4 z-20">
                             <h2 className="text-xl font-bold mb-4">Now Playing</h2>
                             <p className="text-muted-foreground">{currentSong?.title || "No song playing"}</p>

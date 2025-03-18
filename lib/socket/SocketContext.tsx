@@ -10,7 +10,9 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     // Connect to the socket.io server (assumes same origin)
-    const socketInstance = io();
+    const socketInstance = io("https://melodex-socket-server.onrender.com", {
+      withCredentials: true,
+    });
     setSocket(socketInstance);
 
     return () => {

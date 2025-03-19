@@ -162,8 +162,11 @@ export default function MusicRoomPage() {
 
         const handleCurrentSongChanged = (data: any) => {
             if (data.roomId === roomId) {
-                console.log("Socket event - currentSongChanged:", data);
+                console.log("🤩Socket event - currentSongChanged:", data);
                 setCurrentSong(data.currentSong);
+                if (data.songQueue !== undefined) {
+                    setSongQueue(data.songQueue);
+                }
             }
         };
 
@@ -344,17 +347,32 @@ export default function MusicRoomPage() {
         // setCurrentTime(player.getCurrentTime());
     };
 
-    const handleForwardSong = () => {
+    const handleForwardSong = async () => {
         if (isCreator) {
-            if (songQueue.length > 0) {
-                const nextSong = songQueue[0];
-                setCurrentSong(nextSong);
-                setSongQueue(songQueue.slice(1));
-                // Emit a socket event to update all clients
-                socket?.emit("currentSongChanged", { roomId, currentSong: nextSong });
-            } else {
-                // if no song left,can set currentSong to null or do nothing
-                setCurrentSong(null);
+            try {
+                if (!currentSong) {
+                    console.error("No current song to mark as played");
+                    return;
+                }
+                // Mark the current song as played by calling your PATCH endpoint
+                await axios.patch(`/api/rooms/${roomId}/streams/${currentSong.id}/mark-played`);
+                // Optionally, emit a socket event to notify all clients that the song has been marked as played
+                // socket?.emit("songMarkedAsPlayed", { roomId, streamId: currentSong.id });
+                if (songQueue.length > 0) {
+                    const nextSong = songQueue[0];
+                    const updatedQueue = songQueue.slice(1);
+                    setCurrentSong(nextSong);
+                    setSongQueue(updatedQueue);
+                    // Emit a socket event to update all clients
+                    socket?.emit("currentSongChanged", { roomId, currentSong: nextSong, songQueue: updatedQueue });
+                } else {
+                    // if no song left,can set currentSong to null or do nothing
+                    setCurrentSong(null);
+                    socket?.emit("currentSongChanged", { roomId, currentSong: null, songQueue: [] });
+                }
+            }
+            catch (error) {
+                console.error("Error marking song as played:", error);
             }
         } else {
             toast.error("Only the Room creator can change current songs.");

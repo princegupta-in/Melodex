@@ -91,7 +91,7 @@ export default function JoinRoom() {
                         <form onSubmit={handleJoinRoom} className="flex items-stretch">
                             {/* Prefix Label */}
                             <span className="flex items-end px-20 py-5 text-black/80 border border-r-0 border-gray-300 bg-gray-50 rounded-l text-2xl">
-                                Name:🔥
+                                Your Name:
                             </span>
                             <input
                                 type="text"

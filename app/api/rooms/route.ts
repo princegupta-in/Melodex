@@ -43,6 +43,21 @@ export async function POST(request: Request) {
         role: "CREATOR"
       },
     });
+
+    //adding a default stream to the room
+    await prisma.stream.create({
+      data: {
+        url: "https://youtu.be/2Vv-BfVoq4g?si=SQ15lwid_06953y-",
+        extractedId: "2Vv-BfVoq4g",
+        type: "Youtube",
+        title: "Ed Sheeran - Perfect (Official Music Video)",
+        thumbnail: "https://i.ytimg.com/vi/2Vv-BfVoq4g/hqdefault.jpg",
+        // userId: creatorId,
+        roomId: room.id,
+        duration: 280,
+      }
+    });
+
     return NextResponse.json({ room, message: "room created" }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.errors || error.message }, { status: 400 });

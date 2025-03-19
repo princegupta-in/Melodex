@@ -245,7 +245,7 @@ export default function MediaControl({ player, videoDuration, isCreator, roomId,
 
                         {/* Play/Pause button */}
                         <button
-                            className="p-3 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                            className="p-3 rounded-full bg-gradient-to-r from-black/80 to-blue-500 text-primary-foreground hover:bg-primary/90 transition-colors"
                             onClick={togglePlayPause}
                             aria-label={playing ? "Pause" : "Play"}
                         >

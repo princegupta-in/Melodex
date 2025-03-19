@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Music2, Users, Radio, ArrowRight } from "lucide-react"
 import { signIn } from "next-auth/react"
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation';
 
 const pacifico = Pacifico({
   subsets: ["latin"],
@@ -80,6 +82,10 @@ function MusicShape({
 }
 
 export default function HeroLanding() {
+
+  const session = useSession();
+  const router = useRouter();
+
   const fadeUpVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: (i: number) => ({
@@ -198,7 +204,7 @@ export default function HeroLanding() {
             className="flex flex-col sm:flex-row items-center justify-center "
           >
             <Button
-              onClick={() => signIn()}
+              onClick={session.status === "authenticated" ? () => router.push('/create-room') : () => signIn()}
               size="lg"
               className="group bg-gradient-to-r from-black to-blue-500 hover:from-black hover:to-blue-600 text-white flex items-center gap-2"
             >

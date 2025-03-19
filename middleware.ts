@@ -18,11 +18,12 @@ export default withAuth(
 
                 // Allow public API and authentication routes
                 if (
-                    pathname.startsWith("/api/auth") ||
+                    pathname.startsWith("/api") ||
                     pathname === "/" ||
                     pathname.startsWith("/room") || // room pages are public for guests
                     pathname.startsWith("/public") ||
                     pathname.startsWith("/sign-in") ||
+                    pathname.startsWith("/verify-email") ||
                     pathname.startsWith("/sign-up")
                 ) {
                     return true;

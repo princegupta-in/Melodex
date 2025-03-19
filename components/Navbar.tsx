@@ -1,11 +1,10 @@
 "use client"
 import { motion } from 'framer-motion';
-import { Music, Linkedin, Github } from "lucide-react";
+import { Disc3, Linkedin, Github } from "lucide-react";
 import { Session } from 'next-auth';
 import { getSession, signIn, signOut } from 'next-auth/react'
 import React, { useEffect, useState } from 'react'
-
-
+import Link from 'next/link';
 
 export function Navbar() {
 
@@ -29,7 +28,10 @@ export function Navbar() {
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
         >
-          <Music className="text-blue-600" /> <p className='text-black/80'>Melodex</p>
+          <Link href="/" className="flex items-center gap-2">
+
+            <Disc3 className="text-blue-600" /> <p className='text-black/80'>Melodex</p>
+          </Link>
         </motion.div>
 
         <div className="hidden md:flex items-center gap-6 text-white text-lg">

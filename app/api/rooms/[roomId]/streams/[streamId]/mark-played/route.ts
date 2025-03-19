@@ -1,11 +1,12 @@
-// app/api/rooms/[roomId]/streams/[streamId]/mark-played/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/connectToDatabase";
 
-export async function PATCH(request: Request, { params }: { params: { roomId: string; streamId: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ roomId: string; streamId: string }> }): Promise<NextResponse> {
+  const { streamId } = await params
+
   try {
     const updatedSong = await prisma.stream.update({
-      where: { id: params.streamId },
+      where: { id: streamId },
       data: { played: true },
     });
     return NextResponse.json({ message: "Song marked as played", song: updatedSong }, { status: 200 });

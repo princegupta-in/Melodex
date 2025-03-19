@@ -312,15 +312,22 @@ export default function MusicRoomPage() {
             // fetchSongs()
         }
     }
-    const handleSongEnd = () => {
+    const handleSongEnd = async () => {
         // console.log("Current song ended!🤘🤘");
+        if (currentSong) {
+            try {
+                await axios.patch(`/api/rooms/${roomId}/streams/${currentSong.id}/mark-played`);
+            } catch (error) {
+                console.error("Error marking song as played:", error);
+            }
+        }
         // When current song finishes, remove it and set the next song.
         if (songQueue.length > 0) {
             const nextSong = songQueue[0];
             setCurrentSong(nextSong);
             setSongQueue(songQueue.slice(1));
             // Optionally, emit a socket event to notify all clients about the change.
-            // socket?.emit("currentSongChanged", { roomId, currentSong: nextSong });
+            socket?.emit("currentSongChanged", { roomId, currentSong: nextSong });
         } else {
             // No more songs in queue.
             setCurrentSong(null);

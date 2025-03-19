@@ -38,7 +38,7 @@ model TempUser {
 model Stream {
   id          String     @id @default(uuid())
   type        StreamType
-  active      Boolean    @default(true)
+  played      Boolean    @default(false)
   userId      String?
   user        User?      @relation(fields: [userId], references: [id])
   upvotes     Upvote[]

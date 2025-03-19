@@ -125,7 +125,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ room
     try {
         const { roomId } = await params;
         const streams = await prisma.stream.findMany({
-            where: { roomId: roomId },
+            where: { roomId: roomId, played: false },
             orderBy: [
                 {
                     upvotes: {

@@ -16,14 +16,13 @@ import { Slider } from "@/components/ui/slider";
 import { useSocket } from "@/lib/socket/SocketContext";
 import { toast } from "sonner";
 
-// Updated props: isCreator and roomId added
 interface MediaControlProps {
     player: any; // YouTube player instance from react-youtube
     videoDuration: number; // Video duration in seconds, from your stream record
     isCreator: boolean; // True if this user is the room creator
     roomId: string;     // Room ID used for broadcasting playback updates
-    playing: boolean;  // new prop for playback state from parent
-    videoId: string;    // NEW: current video id, used to reapply mute/volume on video change
+    playing: boolean;  // for playback state from parent
+    videoId: string;    // current video id, used to reapply mute/volume on video change
     onForwardSong: () => void;
     syncTime: number;
 }
@@ -75,7 +74,7 @@ export default function MediaControl({ player, videoDuration, isCreator, roomId,
         return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
     };
 
-    // [SYNC] Function to emit playback update if creator
+    // Function to emit playback update if creator
     const syncPlayback = (state: "play" | "pause" | "seek", newTime?: number) => {
         if (isCreator && socket) {
             socket.emit("playbackUpdate", {
@@ -163,7 +162,7 @@ export default function MediaControl({ player, videoDuration, isCreator, roomId,
         return <Volume2 className="h-5 w-5" />;
     };
 
-    // NEW EFFECT: Reapply mute/volume when videoId changes (i.e. new song)
+    // Reapply mute/volume when videoId changes
     useEffect(() => {
         if (player) {
             setTimeout(() => {
@@ -182,7 +181,7 @@ export default function MediaControl({ player, videoDuration, isCreator, roomId,
 
         const handleMuteUpdate = (data: any) => {
             if (data.roomId === roomId) {
-                console.log("Received mute update on guest:", data);
+                // console.log("Received mute update on guest:", data);
                 // Update the UI state for mute
                 setIsMuted(data.mute);
                 // Apply the mute change to the player as well
@@ -224,7 +223,7 @@ export default function MediaControl({ player, videoDuration, isCreator, roomId,
                     <Slider
                         value={[currentTime]}
                         min={0}
-                        max={videoDuration} //use videoDuration from props
+                        max={videoDuration}
                         step={1}
                         onValueChange={handleSeekChange}
                         className="cursor-pointer"

@@ -28,7 +28,7 @@ export const authOptions: NextAuthOptions = {
                     // Verify the password
                     const isValidPassword = await bcrypt.compare(credentials!.password, user.password!);
                     if (isValidPassword) {
-                        console.log("🌸🌸", user)
+                        // console.log("🌸🌸", user)
                         // Any object returned will be saved in `user` property of the JWT
                         return { ...user, username: user.username ?? undefined };
                     } else {

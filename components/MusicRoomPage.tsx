@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import MediaControl from "./MediaControl";
 import { useSocket } from "@/lib/socket/SocketContext";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Song {
     id: string
@@ -104,7 +105,7 @@ export default function MusicRoomPage() {
         fetchParticipants()
     }, [])
 
-    // [SOCKET] SOCKET.IO INTEGRATION: Conditional joinRoom and event listeners
+    // SOCKET.IO INTEGRATION: Conditional joinRoom and event listeners
     useEffect(() => {
         if (!socket) return;
 
@@ -122,7 +123,7 @@ export default function MusicRoomPage() {
         }
         const handleParticipantJoined = (data: any) => {
             if (data.roomId === roomId) {
-                console.log("Socket event - participantJoined:", data);
+                // console.log("Socket event - participantJoined:", data);
                 // Avoid duplicates by checking if the participant already exists
                 setParticipants(prev => {
                     if (!prev.find((p) => p.id === data?.id)) {
@@ -136,6 +137,7 @@ export default function MusicRoomPage() {
         // Define event handler for new songs added via socket
         const handleSongAdded = (data: any) => {
             if (data.roomId === roomId) {
+                toast.success("A new song has been added!");
                 setSongQueue(prev => {
                     return [...prev, data.song.stream]
                 });
@@ -144,7 +146,7 @@ export default function MusicRoomPage() {
         };
 
         const handleVoteUpdated = (data: any) => {
-            console.log("Socket event - voteUpdated:", data);
+            // console.log("Socket event - voteUpdated:", data);
             if (data.roomId === roomId) {
                 setSongQueue((prev) => {
                     // Replace upvotes for the matching song
@@ -162,7 +164,7 @@ export default function MusicRoomPage() {
 
         const handleCurrentSongChanged = (data: any) => {
             if (data.roomId === roomId) {
-                console.log("🤩Socket event - currentSongChanged:", data);
+                // console.log("🤩Socket event - currentSongChanged:", data);
                 setCurrentSong(data.currentSong);
                 if (data.songQueue !== undefined) {
                     setSongQueue(data.songQueue);
@@ -178,7 +180,7 @@ export default function MusicRoomPage() {
 
         // Cleanup function to remove listeners on unmount or dependency change
         return () => {
-            console.log("Cleaning up socket event listeners for MusicRoomPage");
+            // console.log("Cleaning up socket event listeners for MusicRoomPage");
             socket.off("songAdded", handleSongAdded);
             socket.off("voteUpdated", handleVoteUpdated);
             socket.off("participantJoined", handleParticipantJoined);
@@ -191,7 +193,7 @@ export default function MusicRoomPage() {
 
         const handlePlaybackUpdate = (data: any) => {
             if (data.roomId === roomId && !isCreator && player) {
-                console.log("Received playback update:", data);
+                // console.log("Received playback update:", data);
                 if (data.state === "pause") {
                     player.pauseVideo();
                     setPlaying(false); // Update guest UI state to "paused"
@@ -282,13 +284,14 @@ export default function MusicRoomPage() {
             // Refresh song list to get actual data
             // fetchSongs()
         } catch (err) {
-            setError("Failed to add song. Please try again.")
+            // setError("Failed to add song. Please try again.")
+            toast.error("Please enter a valid 🎥 YouTube URL.")
         }
     }
 
     // Handle upvoting a song with optimistic UI update and reordering queue
     const handleUpvote = async (songId: string) => {
-        console.log("Upvoting song with ID:", songId)
+        // console.log("Upvoting song with ID:", songId)
         try {
             let res;
             // Check if user is authenticated or guest
@@ -343,7 +346,6 @@ export default function MusicRoomPage() {
         } else if (event.data === 2) { // Paused
             setPlaying(false);
         }
-        // Optionally, update current time if needed:
         // setCurrentTime(player.getCurrentTime());
     };
 
@@ -354,9 +356,9 @@ export default function MusicRoomPage() {
                     console.error("No current song to mark as played");
                     return;
                 }
-                // Mark the current song as played by calling your PATCH endpoint
+                // Mark the current song as played by calling PATCH endpoint
                 await axios.patch(`/api/rooms/${roomId}/streams/${currentSong.id}/mark-played`);
-                // Optionally, emit a socket event to notify all clients that the song has been marked as played
+                // emit a socket event to notify all clients that the song has been marked as played
                 // socket?.emit("songMarkedAsPlayed", { roomId, streamId: currentSong.id });
                 if (songQueue.length > 0) {
                     const nextSong = songQueue[0];
@@ -536,28 +538,22 @@ export default function MusicRoomPage() {
                         {loading.participants ? (
                             <p>Loading participants...</p>
                         ) : (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto">
                                 {participants.map((participant) => (
-                                    <div key={participant.id} className="flex items-center p-3 bg-card/40 rounded-md shadow-sm">
-                                        <div className="h-10 w-10 rounded-full overflow-hidden mr-3">
-                                            {participant.avatarUrl ? (
-                                                <img
-                                                    src={participant.avatarUrl || "/placeholder.svg"}
-                                                    alt={participant.name}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full bg-primary/20 flex items-center justify-center text-primary font-bold">
-                                                    {participant.name.charAt(0)}
-                                                </div>
-                                            )}
-                                        </div>
+                                    <div
+                                        key={participant.id}
+                                        className="flex items-center p-3 bg-card rounded-md shadow-sm"
+                                    >
+                                        <Avatar className="h-10 w-10sm:h-10 sm:w-10 mr-3">
+                                            {/* If participant.avatarUrl exists, use it, else fallback */}
+                                            <AvatarImage src={participant.avatarUrl ?? "/placeholder.svg"} alt={participant.name} />
+                                            <AvatarFallback>
+                                                {participant.name?.charAt(0)?.toUpperCase() ?? "?"}
+                                            </AvatarFallback>
+                                        </Avatar>
                                         <span className="truncate">{participant.name}</span>
                                     </div>
                                 ))}
-                                {participants.length === 0 && !loading.participants && (
-                                    <p className="text-muted-foreground col-span-3">No participants yet.</p>
-                                )}
                             </div>
                         )}
                     </div>

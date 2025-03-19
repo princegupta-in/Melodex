@@ -137,7 +137,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ room
                 },
             ],
             include: {
-                upvotes: true, // optional: include upvotes if want to display vote details
+                upvotes: true, // include upvotes want to display vote details
             },
         });
         return NextResponse.json({ streams }, { status: 200 });

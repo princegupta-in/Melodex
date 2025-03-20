@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎵 Melodex – Collaborative Music Rooms
 
-## Getting Started
+Melodex is a dynamic and interactive platform where users can create or join music rooms, share YouTube tracks, and enjoy synchronized playback with friends. Whether you're hosting a party, collaborating on a playlist, or just vibing with friends, Melodex makes it easy to connect through music.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Create and Join Rooms**: Create your own room as the creator or join an existing room as a guest.
+- **Collaborative Playlists**: Add YouTube tracks to the queue and upvote favourites with the community.
+- **Real-Time Sync**: Enjoy Real-time communication for participant updates, playback synchronization, and playlist changes.
+- **Guest and Authenticated Access**: Secure sign-in with NextAuth (Google authentication available) and guest participation with a custom join flow.
+- **Interactive Controls**: Play, pause, seek, and control volume seamlessly.
+- **Invite Friends**: Share invite links to bring your friends into the room.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ Tech Stack
 
-## Learn More
+- **Next.js 15** – Full-stack React framework for both frontend and API routes  
+- **Express.js** – Used for the separate Socket.IO server (`server.js`)  
+- **Socket.IO** – Real-time communication between clients and server  
+- **Prisma & PostgreSQL** – Database ORM and storage solution  
+- **NextAuth.js** – Authentication solution (Google, email, etc.)  
+- **Nodemailer & bcryptjs** – For email verification and secure password hashing  
+- **Tailwind CSS & shadcn/ui** – Styling and pre-built UI components  
+- **React Hook Form & Zod** – Form handling with schema validation  
+- **next-themes** – For dark/light mode switching  
+- **Sonner** – For toast notifications  
+- **Axios** – For HTTP requests
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📸 Screenshots
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Home Page
+![Home Page](public/images/main.png)
 
-## Deploy on Vercel
+### Music Room
+![Music Room](public/images/room.png)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---

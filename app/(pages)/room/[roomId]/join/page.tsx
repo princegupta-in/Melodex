@@ -57,6 +57,19 @@ export default function JoinRoom() {
     const handleJoinRoomWithName = async (name: string) => {
         setError('');
         try {
+            // Check if participant data already exists in local storage(to stop creating double entries on every /join req)
+            const storedParticipantData = localStorage.getItem('participantData');
+            if (storedParticipantData) {
+                const { id, name: storedName } = JSON.parse(storedParticipantData);
+                if (id && storedName === name) {
+                    // If participant already exists, navigate to the room
+                    setParticipantId(id);
+                    router.push(`/room/${roomId}`);
+                    return;
+                }
+            }
+
+            // If no valid participant data, proceed with API call
             const res = await axios.post(`/api/rooms/${roomId}/join`, { name });
             const participant = res.data.participant;
             localStorage.setItem('participantData', JSON.stringify({ id: participant.id, name: participant.name }));

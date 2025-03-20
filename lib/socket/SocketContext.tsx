@@ -11,8 +11,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Connect to the socket.io server (assumes same origin)
     const socketServerUrl =
-      process.env.NODE_ENV === "production"
-        ? process.env.MELODEX_SOCKET_SERVER_URL
+      (process.env.NODE_ENV === "production")
+        ? process.env.NEXT_PUBLIC_MELODEX_SOCKET_SERVER_URL
         : undefined;
     const socketInstance = io(socketServerUrl, {
       withCredentials: true,

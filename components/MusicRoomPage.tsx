@@ -407,14 +407,15 @@ export default function MusicRoomPage() {
 
 
     return (
-
         <div>
-            <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]"><div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_500px_at_50%_200px,#C9EBFF,transparent)]"></div></div>
-            <div className="flex h-screen pt-20 pb-16">
+            <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]">
+                <div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_500px_at_50%_200px,#C9EBFF,transparent)]"></div>
+            </div>
+            <div className="flex flex-col lg:flex-row overflow-auto h-screen pt-20 pb-16">
                 {/* Left Column - Player and Queue */}
-                <div className="w-1/2 flex flex-col p-4">
+                <div className="lg:w-1/2 w-full flex flex-col p-4">
                     {/* YouTube Player */}
-                    <div className="relative w-full h-1/3 mb-4 rounded-md overflow-hidden flex items-center border-2 border-slate-400 px-2">
+                    <div className="relative w-full h-48 lg:h-1/3 mb-4 rounded-md overflow-hidden flex items-center border-2 border-slate-400 px-2">
                         {currentSong && (
                             <YouTube
                                 videoId={currentSong.extractedId}
@@ -449,14 +450,14 @@ export default function MusicRoomPage() {
                             </div>
                         )} */}
                         <div className="pl-2 flex flex-col h-full pt-4 z-20">
-                            <h2 className="text-xl font-bold mb-4">Now Playing</h2>
-                            <p className="text-muted-foreground">{currentSong?.title || "No song playing"}</p>
+                            <h2 className="text-lg lg:text-xl font-bold mb-2 lg:mb-4">Now Playing</h2>
+                            <p className="text-sm lg:text-base text-muted-foreground">{currentSong?.title || "No song playing"}</p>
                         </div>
                     </div>
 
                     {/* Song Queue */}
                     <div className="flex-1 overflow-y-auto border-2 border-slate-400 px-4 rounded-md">
-                        <h2 className="text-xl font-bold mb-4 text-black pt-4">Up Next</h2>
+                        <h2 className="text-lg lg:text-xl font-bold mb-2 lg:mb-4 text-black pt-4">Up Next</h2>
 
                         {error && <p className="text-red-500 mb-4">{error}</p>}
 
@@ -469,10 +470,10 @@ export default function MusicRoomPage() {
                                         <img
                                             src={song.thumbnail || "/placeholder.svg"}
                                             alt={song.title}
-                                            className="w-20 h-14 object-cover rounded mr-3"
+                                            className="w-16 h-12 lg:w-20 lg:h-14 object-cover rounded mr-3"
                                         />
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-medium truncate">{song.title}</p>
+                                            <p className="text-sm lg:text-base font-medium truncate">{song.title}</p>
                                         </div>
                                         <div className="flex items-center ml-4">
                                             <button
@@ -496,11 +497,11 @@ export default function MusicRoomPage() {
 
 
                 {/* Right Column - Add Song and Participants */}
-                <div className="w-1/2 flex flex-col p-4">
+                <div className="lg:w-1/2 w-full flex flex-col p-4">
                     {/* Add Song Section */}
-                    <div className="h-1/3 mb-4 border-2 border-slate-400 px-4 py-2 rounded-md">
-                        <h2 className="text-xl font-bold mb-4 text-black">Add a Song</h2>
-                        <div className="flex gap-2 mb-4">
+                    <div className="h-auto mb-4 border-2 border-slate-400 px-4 py-2 rounded-md">
+                        <h2 className="text-lg lg:text-xl font-bold mb-2 lg:mb-4 text-black text-center sm:text-left">Add a Song</h2>
+                        <div className="flex flex-col sm:flex-row gap-2 mb-4">
                             <input
                                 type="text"
                                 value={newSongUrl}
@@ -510,25 +511,24 @@ export default function MusicRoomPage() {
                             />
                             <button
                                 onClick={handleAddSong}
-                                className="px-4 py-2 text-primary-foreground rounded-md hover:bg-primary/90 transition-colors bg-gradient-to-r from-black to-blue-500 hover:from-black hover:to-blue-600 text-white"
+                                className="px-4 py-2 text-sm sm:text-primary-foreground rounded-md hover:bg-primary/90 transition-colors bg-gradient-to-r from-black to-blue-500 hover:from-black hover:to-blue-600 text-white"
                             >
                                 Add Song
                             </button>
                         </div>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground text-center sm:text-left">
                             Paste a YouTube video URL to add it to the queue. The community can upvote songs to change their order.
                         </p>
                     </div>
 
                     {/* Participants Section */}
-                    <div className="flex-1 overflow-y-auto border-2 border-slate-400 px-4 py-4 rounded-md ">
-                        {/* Invite Friends Button (only for creator) */}
+                    <div className="flex-1 overflow-y-auto border-2 border-slate-400 px-4 py-4 rounded-md">
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-xl font-bold text">Room Participants</h2>
+                            <h2 className="text-lg lg:text-xl font-bold">Room Participants</h2>
                             {isCreator && (
                                 <button
                                     onClick={handleInviteFriends}
-                                    className="px-4 py-2 rounded-md hover:bg-primary/90 transition-colors bg-gradient-to-r from-black to-blue-500 hover:from-black hover:to-blue-600 text-white"
+                                    className="px-4 py-2 rounded-md hover:bg-primary/90 transition-colors bg-gradient-to-r from-black to-blue-500 hover:from-black hover:to-blue-600 text-white text-sm sm:text-primary-foreground"
                                     aria-label="Invite Friends"
                                 >
                                     Invite Friends
@@ -544,20 +544,18 @@ export default function MusicRoomPage() {
                                         key={participant.id}
                                         className="flex items-center p-3 bg-card rounded-md shadow-sm"
                                     >
-                                        <Avatar className="h-10 w-10sm:h-10 sm:w-10 mr-3">
-                                            {/* If participant.avatarUrl exists, use it, else fallback */}
+                                        <Avatar className="h-8 w-8 sm:h-10 sm:w-10 mr-3">
                                             <AvatarImage src={participant.avatarUrl ?? "/placeholder.svg"} alt={participant.name} />
                                             <AvatarFallback>
                                                 {participant.name?.charAt(0)?.toUpperCase() ?? "?"}
                                             </AvatarFallback>
                                         </Avatar>
-                                        <span className="truncate">{participant.name}</span>
+                                        <span className="truncate text-sm lg:text-base">{participant.name}</span>
                                     </div>
                                 ))}
                             </div>
                         )}
                     </div>
-
                 </div>
             </div>
             {/* media control */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -14,13 +14,35 @@ const verificationSchema = z.object({
 export default function VerifyEmailPage() {
     const params = useParams();
     const { email } = params;
-    const decodedEmail = decodeURIComponent(email as string) // => "ppp@gmail.com"
-
+    const decodedEmail = decodeURIComponent(email as string); // => "ppp@gmail.com"
 
     const [verificationCode, setVerificationCode] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [resendTimer, setResendTimer] = useState(0); // Countdown timer in seconds
+
+    // Start a 5-minute timer when component mounts to prevent immediate resend
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+
+        if (resendTimer > 0) {
+            interval = setInterval(() => {
+                setResendTimer((prevTimer) => prevTimer - 1);
+            }, 1000);
+        }
+
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [resendTimer]);
+
+    // Format the remaining time as MM:SS
+    const formatRemainingTime = () => {
+        const minutes = Math.floor(resendTimer / 60);
+        const seconds = resendTimer % 60;
+        return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -53,14 +75,23 @@ export default function VerifyEmailPage() {
     };
 
     const handleResendEmail = async () => {
-        // RESEND LOGIC TO
-        alert("Verification email resent!");
+        try {
+            // RESEND LOGIC TO BE IMPLEMENTED HERE
+            alert("Verification email resent!");
+
+            // Start 5-minute countdown (300 seconds)
+            setResendTimer(300);
+        } catch (err) {
+            console.error("Error resending email:", err);
+        }
     };
 
     if (isSuccess) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen px-4">
-                <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]"><div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_500px_at_50%_200px,#C9EBFF,transparent)]"></div></div>
+                <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]">
+                    <div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_500px_at_50%_200px,#C9EBFF,transparent)]"></div>
+                </div>
                 <div className="w-full max-w-md p-8 space-y-8 text-center bg-white rounded-lg shadow-sm">
                     <div className="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center">
                         <svg
@@ -88,7 +119,9 @@ export default function VerifyEmailPage() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen px-4">
-            <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]"><div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_500px_at_50%_200px,#C9EBFF,transparent)]"></div></div>
+            <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]">
+                <div className="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_500px_at_50%_200px,#C9EBFF,transparent)]"></div>
+            </div>
             <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-sm">
                 <div className="text-center">
                     <div className="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center">
@@ -144,9 +177,19 @@ export default function VerifyEmailPage() {
                 </form>
 
                 <div className="text-center">
-                    <button type="button" onClick={handleResendEmail} className="text-blue-600 hover:text-blue-500">
-                        Resend email
-                    </button>
+                    {resendTimer > 0 ? (
+                        <div className="text-gray-500">
+                            Resend available in {formatRemainingTime()}
+                        </div>
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={handleResendEmail}
+                            className="text-blue-600 hover:text-blue-500"
+                        >
+                            Resend email
+                        </button>
+                    )}
                 </div>
 
                 <div className="flex justify-center space-x-4 text-sm text-gray-500">

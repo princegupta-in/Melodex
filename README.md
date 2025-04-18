@@ -33,10 +33,15 @@ Melodex is a dynamic and interactive platform where users can create or join mus
 
 ## 📸 Screenshots
 
-### Home Page
-![Home Page](public/images/main.png)
-
 ### Music Room
 ![Music Room](public/images/room.png)
+
+---
+
+## 🎬 Watch the demo video here 👇👇
+
+📽️ [![Watch the video](https://img.shields.io/badge/Demo-Video-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+
+[![Melodex Demo Video](https://img.youtube.com/vi/0MEyQtbmovc/maxresdefault.jpg)](https://youtu.be/0MEyQtbmovc)
 
 ---

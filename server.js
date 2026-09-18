@@ -16,7 +16,7 @@ app.prepare().then(() => {
     const io = new SocketIOServer(httpServer, {
         cors: {
             origin: process.env.NODE_ENV === "production"
-                ? ["https://melodex-two.vercel.app/"]
+                ? ["https://melodex-two.vercel.app"]
                 : "*",
             methods: ["GET", "POST"],
             credentials: true,
